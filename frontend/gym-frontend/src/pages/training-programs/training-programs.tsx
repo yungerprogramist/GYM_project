@@ -1,448 +1,189 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
-  Paper,
   Typography,
   Box,
-  Grid,
   IconButton,
-  CircularProgress,
   Card,
   CardContent,
+  CardMedia,
   Chip,
 } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
-//  ТИПЫ ДАННЫХ 
+// Импортируем фото из папки image
+import img10Nedel from './image/10nedel-ectomorph.jpg';
+import imgGanteli from './image/ganteli.jpg';
+import img4Dnya from './image/4dnya.jpg';
+import imgLorenc from './image/lorenc.jpg';
+import img12Nedel from './image/12nedel.jpg';
+import imgFullbody from './image/fullbody.png';
+
 type Difficulty = 'Начинающий' | 'Средний' | 'Продвинутый';
 
 interface Program {
   id: string;
   name: string;
   difficulty: Difficulty;
+  image: string;
 }
 
-interface Exercise {
-  id: string;
-  name: string;
-  sets: number;
-  reps: number;
-}
-
-interface ProgramDetails extends Program {
-  description: string;
-  duration: string;
-  exercises: Exercise[];
-}
-
-//  ЦВЕТА ДЛЯ УРОВНЕЙ СЛОЖНОСТИ 
-const difficultyColors: Record<Difficulty, { bg: string; color: string }> = {
+const difficultyColors = {
   'Начинающий': { bg: '#e8f5e9', color: '#2e7d32' },
   'Средний': { bg: '#fff3e0', color: '#ed6c02' },
   'Продвинутый': { bg: '#fce4ec', color: '#c62828' },
 };
 
-//  НАЧАЛЬНЫЕ ДАННЫЕ 
 const mockPrograms: Program[] = [
-  { id: '1', name: '10-недельная программа на массу', difficulty: 'Продвинутый' },
-  { id: '2', name: 'Программа с гантелями для дома и зала', difficulty: 'Начинающий' },
-  { id: '3', name: '4-дневный сплит "Сила, Мышцы и Огонь"', difficulty: 'Средний' },
-  { id: '4', name: 'Программа набора массы для эктоморфа', difficulty: 'Начинающий' },
-  { id: '5', name: '5-дневная программа Дуга Лоренса', difficulty: 'Средний' },
-  { id: '6', name: '12-недельная программа тренировок для новичков', difficulty: 'Начинающий' },
-  { id: '7', name: 'Программа Фулбоди на силу', difficulty: 'Продвинутый' },
-  { id: '8', name: '3-дневная программа для начинающих', difficulty: 'Начинающий' },
+  { id: '1', name: '10-недельная программа на массу', difficulty: 'Продвинутый', image: img10Nedel },
+  { id: '2', name: 'Программа с гантелями для дома и зала', difficulty: 'Начинающий', image: imgGanteli },
+  { id: '3', name: '4-дневный сплит "Сила, Мышцы и Огонь"', difficulty: 'Средний', image: img4Dnya },
+  { id: '4', name: 'Программа набора массы для эктоморфа', difficulty: 'Начинающий', image: img10Nedel },
+  { id: '5', name: '5-дневная программа Дуга Лоренса', difficulty: 'Средний', image: imgLorenc },
+  { id: '6', name: '12-недельная программа тренировок для новичков', difficulty: 'Начинающий', image: img12Nedel },
+  { id: '7', name: 'Программа Фулбоди на силу', difficulty: 'Продвинутый', image: imgFullbody },
 ];
 
-//  КОМПОНЕНТ КАРТОЧКИ ПРОГРАММЫ 
-interface ProgramCardProps {
-  program: Program;
-  onProgramClick: (programId: string) => void;  
-}
-
-const ProgramCard: React.FC<ProgramCardProps> = ({ program, onProgramClick }) => {
+const ProgramCard = ({ program, onClick }: { program: Program; onClick: (id: string) => void }) => {
   return (
-    <Card
-      onClick={() => onProgramClick(program.id)}  // ← передаем programId
-      sx={{
-        cursor: 'pointer',
+    <Card 
+      onClick={() => onClick(program.id)} 
+      sx={{ 
+        cursor: 'pointer', 
+        borderRadius: '16px',
+        overflow: 'hidden',
         transition: 'transform 0.2s, box-shadow 0.2s',
-        '&:hover': {
-          transform: 'translateY(-4px)',
-          boxShadow: '0 8px 20px rgba(0,0,0,0.12)',
+        position: 'relative',
+        '&:hover': { 
+          transform: 'translateY(-4px)', 
+          boxShadow: '0 8px 20px rgba(0,0,0,0.15)' 
         },
       }}
     >
-      <CardContent>
-        <Typography
-          variant="h6"
+      <Box sx={{ position: 'relative' }}>
+        <CardMedia
+          component="img"
+          height="200"
+          image={program.image}
+          alt={program.name}
+          sx={{ objectFit: 'cover' }}
+        />
+        {/* Затемнение для лучшей читаемости текста */}
+        <Box
           sx={{
-            fontSize: '1rem',
-            fontWeight: 600,
-            lineHeight: 1.3,
-            minHeight: 52,
-            fontFamily: 'Manrope, sans-serif',
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: 'linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.7))',
+          }}
+        />
+        {/* Текст поверх фото */}
+        <Box
+          sx={{
+            position: 'absolute',
+            bottom: 0,
+            left: 0,
+            right: 0,
+            p: 2,
+            color: 'white',
           }}
         >
-          {program.name}
-        </Typography>
-        <Box sx={{ mt: 2 }}>
-          <Chip
-            label={program.difficulty}
-            size="small"
-            sx={{
-              bgcolor: difficultyColors[program.difficulty].bg,
-              color: difficultyColors[program.difficulty].color,
-              fontWeight: 600,
-              fontFamily: 'Manrope, sans-serif',
+          <Typography 
+            variant="body1" 
+            sx={{ 
+              fontWeight: 600, 
+              fontSize: '0.95rem', 
+              lineHeight: 1.3,
+              mb: 1,
+              textShadow: '1px 1px 2px rgba(0,0,0,0.5)'
             }}
+          >
+            {program.name}
+          </Typography>
+          <Chip 
+            label={program.difficulty} 
+            size="small" 
+            sx={{ 
+              bgcolor: difficultyColors[program.difficulty].bg, 
+              color: difficultyColors[program.difficulty].color, 
+              fontWeight: 600,
+              fontSize: '0.7rem'
+            }} 
           />
         </Box>
-      </CardContent>
+      </Box>
     </Card>
   );
 };
 
-//  КОМПОНЕНТ ДЕТАЛЕЙ ПРОГРАММЫ 
-interface ProgramDetailsViewProps {
-  programId: string;
-  onBack: () => void;
-}
+const TrainingPrograms = () => {
+  const [selectedId, setSelectedId] = useState<string | null>(null);
 
-const ProgramDetailsView: React.FC<ProgramDetailsViewProps> = ({ programId, onBack }) => {
-  const [program, setProgram] = useState<ProgramDetails | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    setTimeout(() => {
-      const found = mockPrograms.find((p) => p.id === programId);
-      if (found) {
-        setProgram({
-          ...found,
-          description: `Подробное описание программы "${found.name}". Эта программа разработана профессиональными тренерами для достижения максимальных результатов.`,
-          duration: '10 недель',
-          exercises: [
-            { id: '1', name: 'Приседания со штангой', sets: 4, reps: 12 },
-            { id: '2', name: 'Жим штанги лежа', sets: 4, reps: 10 },
-            { id: '3', name: 'Тяга штанги в наклоне', sets: 4, reps: 10 },
-            { id: '4', name: 'Жим ногами', sets: 3, reps: 15 },
-            { id: '5', name: 'Подтягивания', sets: 3, reps: 8 },
-          ],
-        });
-      }
-      setLoading(false);
-    }, 500);
-  }, [programId]);
-
-  if (loading) {
+  if (selectedId) {
+    const program = mockPrograms.find(p => p.id === selectedId);
+    
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', p: 5 }}>
-        <CircularProgress />
-      </Box>
-    );
-  }
-
-  if (!program) {
-    return (
-      <Typography sx={{ textAlign: 'center', p: 5, color: 'rgba(128, 128, 128, 1)' }}>
-        Программа не найдена
-      </Typography>
-    );
-  }
-
-  return (
-    <Box>
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 3 }}>
-        <IconButton
-          onClick={onBack}
-          sx={{
-            width: 28,
-            height: 28,
-            border: '2px solid rgba(128, 128, 128, 1)',
-            color: 'rgba(128, 128, 128, 1)',
-            backgroundColor: 'transparent',
-            '&:hover': {
-              backgroundColor: 'rgba(158, 158, 158, 0.1)',
-            },
-          }}
-        >
-          <ArrowBackIcon sx={{ fontSize: 18 }} />
-        </IconButton>
-        <Typography
-          variant="h5"
-          sx={{
-            color: 'rgba(128, 128, 128, 1)',
-            fontFamily: 'Manrope, sans-serif',
-            fontWeight: 'bold',
-          }}
-        >
-          {program.name}
-        </Typography>
-        <Chip
-          label={program.difficulty}
-          size="small"
-          sx={{
-            bgcolor: difficultyColors[program.difficulty].bg,
-            color: difficultyColors[program.difficulty].color,
-            fontWeight: 600,
-          }}
-        />
-      </Box>
-
-      <Paper
-        sx={{
-          p: 3,
-          mb: 2,
-          borderRadius: '16px',
-          bgcolor: 'rgba(217, 217, 217, 0.4)',
-        }}
-      >
-        <Typography
-          variant="h6"
-          sx={{
-            mb: 2,
-            fontFamily: 'Manrope, sans-serif',
-            fontWeight: 'bold',
-            color: 'rgba(128, 128, 128, 1)',
-          }}
-        >
-          О программе
-        </Typography>
-        <Typography
-          variant="body2"
-          sx={{
-            color: 'rgba(128, 128, 128, 1)',
-            fontFamily: 'Manrope, sans-serif',
-            mb: 2,
-          }}
-        >
-          {program.description}
-        </Typography>
-        <Typography
-          variant="body2"
-          sx={{
-            color: 'rgba(128, 128, 128, 1)',
-            fontFamily: 'Manrope, sans-serif',
-            fontWeight: 500,
-          }}
-        >
-          Длительность: {program.duration}
-        </Typography>
-      </Paper>
-
-      <Paper
-        sx={{
-          p: 3,
-          borderRadius: '16px',
-          bgcolor: 'rgba(217, 217, 217, 0.4)',
-        }}
-      >
-        <Typography
-          variant="h6"
-          sx={{
-            mb: 2,
-            fontFamily: 'Manrope, sans-serif',
-            fontWeight: 'bold',
-            color: 'rgba(128, 128, 128, 1)',
-          }}
-        >
-          Расписание тренировок
-        </Typography>
-        {program.exercises.map((exercise, index) => (
-          <Box
-            key={exercise.id}
-            sx={{
-              mb: 2,
-              p: 2,
-              bgcolor: 'white',
-              borderRadius: '12px',
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-            }}
-          >
-            <Typography
-              variant="subtitle1"
-              sx={{
-                fontWeight: 'bold',
-                fontFamily: 'Manrope, sans-serif',
-                color: 'rgba(128, 128, 128, 1)',
-              }}
-            >
-              {index + 1}. {exercise.name}
-            </Typography>
-            <Typography
-              variant="body2"
-              sx={{
-                color: 'rgba(128, 128, 128, 0.7)',
-                fontFamily: 'Manrope, sans-serif',
-              }}
-            >
-              {exercise.sets} × {exercise.reps}
-            </Typography>
-          </Box>
-        ))}
-      </Paper>
-    </Box>
-  );
-};
-
-//  КОМПОНЕНТ БОКОВОЙ ПАНЕЛИ 
-interface SidebarProps {
-  activeItem: string;
-  onItemClick: (itemId: string) => void;
-}
-
-const Sidebar: React.FC<SidebarProps> = ({ activeItem, onItemClick }) => {
-  const menuItems = [
-    { id: 'programs', label: 'Программы' },
-    { id: 'measurements', label: 'Замеры' },
-    { id: 'notes', label: 'Блокнот' },
-    { id: 'settings', label: 'Настройки' },
-    { id: 'account', label: 'Мой аккаунт' },
-  ];
-
-  return (
-    <Box
-      sx={{
-        width: 280,
-        height: '100vh',
-        bgcolor: 'white',
-        borderRight: '1px solid #e0e0e0',
-        position: 'sticky',
-        top: 0,
-        display: 'flex',
-        flexDirection: 'column',
-      }}
-    >
-      <Box sx={{ p: 3, borderBottom: '1px solid #e0e0e0' }}>
-        <Typography variant="h6" fontWeight="bold" sx={{ fontFamily: 'Manrope, sans-serif' }}>
-          Fitness App
-        </Typography>
-        <Typography variant="caption" color="text.secondary" sx={{ fontFamily: 'Manrope, sans-serif' }}>
-          Тренировочный портал
-        </Typography>
-      </Box>
-
-      <Box sx={{ flex: 1, p: 2 }}>
-        {menuItems.map((item) => (
-          <Box
-            key={item.id}
-            onClick={() => onItemClick(item.id)}
-            sx={{
-              p: 1.5,
-              mb: 1,
-              borderRadius: '12px',
-              cursor: 'pointer',
-              bgcolor: activeItem === item.id ? 'rgba(128, 128, 128, 0.1)' : 'transparent',
-              '&:hover': {
-                bgcolor: 'rgba(128, 128, 128, 0.05)',
-              },
-            }}
-          >
-            <Typography
-              sx={{
-                fontFamily: 'Manrope, sans-serif',
-                fontWeight: activeItem === item.id ? 600 : 400,
-                color: activeItem === item.id ? '#000' : 'rgba(128, 128, 128, 1)',
-              }}
-            >
-              {item.label}
-            </Typography>
-          </Box>
-        ))}
-      </Box>
-
-      <Box sx={{ p: 2, borderTop: '1px solid #e0e0e0' }}>
-        <Typography variant="caption" color="text.secondary" sx={{ fontFamily: 'Manrope, sans-serif' }}>
-          Управление действиями
-        </Typography>
-      </Box>
-    </Box>
-  );
-};
-
-// ГЛАВНЫЙ КОМПОНЕНТ СТРАНИЦЫ
-const TrainingPrograms: React.FC = () => {
-  const [activeMenuItem, setActiveMenuItem] = useState('programs');
-  const [view, setView] = useState<'list' | 'details'>('list');
-  const [programs, setPrograms] = useState<Program[]>([]);
-  const [selectedProgramId, setSelectedProgramId] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    setTimeout(() => {
-      setPrograms(mockPrograms);
-      setLoading(false);
-    }, 500);
-  }, []);
-
-  const handleProgramClick = (programId: string) => {
-    setSelectedProgramId(programId);
-    setView('details');
-  };
-
-  const handleBackToList = () => {
-    setView('list');
-    setSelectedProgramId(null);
-  };
-
-  const handleMenuItemClick = (itemId: string) => {
-    setActiveMenuItem(itemId);
-    console.log('Переход на:', itemId);
-  };
-
-  const renderContent = () => {
-    if (view === 'details' && selectedProgramId) {
-      return <ProgramDetailsView programId={selectedProgramId} onBack={handleBackToList} />;
-    }
-
-    if (loading) {
-      return (
-        <Box sx={{ display: 'flex', justifyContent: 'center', p: 5 }}>
-          <CircularProgress />
+      <Box sx={{ 
+        bgcolor: '#f5f5f5',
+        py: 4,
+        px: { xs: 2, sm: 3, md: 4 }
+      }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 3, flexWrap: 'wrap' }}>
+          <IconButton onClick={() => setSelectedId(null)} sx={{ border: '2px solid rgba(128,128,128,0.5)', borderRadius: '12px' }}>
+            <ArrowBackIcon />
+          </IconButton>
+          <Typography variant="h5" sx={{ fontWeight: 'bold' }}>{program?.name}</Typography>
+          <Chip label={program?.difficulty} sx={{ bgcolor: difficultyColors[program?.difficulty as Difficulty].bg }} />
         </Box>
-      );
-    }
-
-    return (
-      <>
-        <Typography
-          variant="h5"
-          sx={{
-            mb: 3,
-            color: 'rgba(128, 128, 128, 1)',
-            fontFamily: 'Manrope, sans-serif',
-            fontWeight: 'bold',
-          }}
-        >
-          Программы тренировок
-        </Typography>
-        <Grid container spacing={3}>
-          {programs.map((program) => (
-            <Grid item xs={12} sm={6} md={4} key={program.id}>
-              <ProgramCard program={program} onProgramClick={handleProgramClick} />
-            </Grid>
-          ))}
-        </Grid>
-      </>
+        
+        <CardMedia 
+          component="img" 
+          height="400" 
+          image={program?.image} 
+          alt={program?.name} 
+          sx={{ borderRadius: '16px', mb: 3, objectFit: 'cover' }} 
+        />
+        
+        <Box sx={{ p: 3, bgcolor: 'white', borderRadius: '16px' }}>
+          <Typography variant="h6" gutterBottom>О программе</Typography>
+          <Typography variant="body2" sx={{ color: 'text.secondary', mb: 1 }}>
+            Подробное описание программы "{program?.name}". 
+            Эта программа рассчитана на {program?.difficulty.toLowerCase()} уровень подготовки.
+          </Typography>
+          <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+            Включает в себя комплекс упражнений для достижения максимальных результатов.
+            Рекомендуемая частота тренировок: 3-4 раза в неделю.
+          </Typography>
+        </Box>
+      </Box>
     );
-  };
+  }
 
   return (
-    <Box sx={{ display: 'flex', minHeight: '100vh', bgcolor: '#f5f5f5' }}>
-      <Sidebar activeItem={activeMenuItem} onItemClick={handleMenuItemClick} />
-      <Box sx={{ flex: 1, p: 3 }}>
-        <Paper
-          sx={{
-            p: 3,
-            maxWidth: 1200,
-            mx: 'auto',
-            bgcolor: 'transparent',
-            boxShadow: 'none',
-          }}
-        >
-          {renderContent()}
-        </Paper>
+    <Box sx={{ 
+      bgcolor: '#f5f5f5',
+      py: 4,
+      px: { xs: 2, sm: 3, md: 4 }
+    }}>
+      <Typography variant="h4" sx={{ mb: 4, fontWeight: 'bold' }}>
+        Программы тренировок
+      </Typography>
+      
+      <Box 
+        sx={{ 
+          display: 'grid', 
+          gridTemplateColumns: { 
+            xs: '1fr', 
+            sm: 'repeat(2, 1fr)', 
+            md: 'repeat(3, 1fr)' 
+          }, 
+          gap: 3 
+        }}
+      >
+        {mockPrograms.map((program) => (
+          <ProgramCard key={program.id} program={program} onClick={setSelectedId} />
+        ))}
       </Box>
     </Box>
   );
