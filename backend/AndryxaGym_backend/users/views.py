@@ -6,8 +6,9 @@ from .serializers import UserProfileSerializer
 
 
 class UserProfileView(APIView):
+    
     permission_classes = [IsAuthenticated]
-
+    
     def get_object(self, user):
         profile, created = UserProfile.objects.get_or_create(user=user)
         return profile
