@@ -5,7 +5,7 @@ const RightColumn = () => {
   return (
     <main className="right-column">
       <Calendar
-        trainingDays={["2024-03-10", "2024-03-12", "2024-03-15"]}
+        trainingDays={["2026-05-10", "2026-05-12", "2026-05-15"]}
         onDaySelect={(d) => console.log('selected day', d)}
       />
     </main>
