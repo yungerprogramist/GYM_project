@@ -28,7 +28,7 @@ function TrainingDay(props: TrainingDayProps) {
 		}}
 		sx={
 			hasTraining
-			? { bgcolor: '#E6FFED', color: '#064E3B' } // зелёный
+			? { bgcolor: 'hsla(104, 68%, 67%, 0.6)', color: 'balck' } // зелёный
 			: undefined
 		}
     />
