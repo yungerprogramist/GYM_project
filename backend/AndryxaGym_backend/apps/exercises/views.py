@@ -2,7 +2,7 @@ from rest_framework import viewsets, filters
 from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
 from django_filters.rest_framework import DjangoFilterBackend
 
-from .Models import MuscleGroup, Exercise
+from .models import MuscleGroup, Exercise
 from .serializers import MuscleGroupSerializer, ExerciseSerializer
 
 

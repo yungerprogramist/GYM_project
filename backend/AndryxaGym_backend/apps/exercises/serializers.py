@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .Models import MuscleGroup, Exercise
+from .models import MuscleGroup, Exercise
 
 
 class MuscleGroupSerializer(serializers.ModelSerializer):
