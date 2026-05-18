@@ -3,7 +3,8 @@ URL configuration for AndryxaGym_backend project.
 """
 
 from django.contrib import admin
-from django.urls import path, include, static
+from django.urls import path, include
+from django.conf.urls.static import static
 from rest_framework_simplejwt.views import TokenRefreshView
 from django.conf import settings
 
