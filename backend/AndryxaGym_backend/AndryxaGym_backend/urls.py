@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 """
 URL configuration for AndryxaGym_backend project.
 """
@@ -15,3 +16,12 @@ urlpatterns = [
     path('api/users/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('api/v1/exercises/', include('apps.exercises.urls')),
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+=======
+from django.contrib import admin
+from django.urls import path, include
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('api/measurements/', include('apps.measurements.urls')),
+]
+>>>>>>> origin/measurements-task#6
