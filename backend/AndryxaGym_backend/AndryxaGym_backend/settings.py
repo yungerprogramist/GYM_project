@@ -40,7 +40,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-<<<<<<< HEAD
     
     'rest_framework',
     'rest_framework_simplejwt',
@@ -48,11 +47,9 @@ INSTALLED_APPS = [
 
     'notes',
     'users',
-=======
     'rest_framework',
     'django_filters',
     'apps.exercises',
->>>>>>> feature/exercises
 ]
 
 AUTH_USER_MODEL = 'users.User'
@@ -148,10 +145,7 @@ USE_I18N = True
 
 USE_TZ = True
 
-<<<<<<< HEAD
 STATIC_URL = '/static/'
-=======
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
->>>>>>> feature/exercises
 
