@@ -40,7 +40,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-<<<<<<< HEAD
     
     'rest_framework',
     'rest_framework_simplejwt',
@@ -50,11 +49,8 @@ INSTALLED_APPS = [
     'users',
     # 'django_filters',
     'apps.exercises',
-=======
-    'rest_framework',
     #'apps.exercises',
     'apps.measurements',
->>>>>>> origin/measurements-task#6
 ]
 
 AUTH_USER_MODEL = 'users.User'
@@ -150,13 +146,9 @@ USE_I18N = True
 
 USE_TZ = True
 
-<<<<<<< HEAD
 STATIC_URL = '/static/'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-
-=======
-STATIC_URL = 'static/'
 
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
@@ -187,4 +179,3 @@ REST_FRAMEWORK = {
     'DATETIME_FORMAT': '%Y-%m-%d %H:%M:%S',
     'DATE_FORMAT': '%Y-%m-%d',
 }
->>>>>>> origin/measurements-task#6
