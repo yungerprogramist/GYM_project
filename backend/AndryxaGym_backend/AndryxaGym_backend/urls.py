@@ -14,6 +14,6 @@ urlpatterns = [
     path('api/measurements/', include('apps.measurements.urls')),
     path('api/users/', include('users.urls')),
     path('api/users/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-    path('api/v1/exercises/', include('apps.exercises.urls')),
+    path('api/v1/exercises/', include('exercises.urls')),
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

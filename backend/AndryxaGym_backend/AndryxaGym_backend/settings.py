@@ -48,7 +48,7 @@ INSTALLED_APPS = [
     'notes',
     'users',
     # 'django_filters',
-    'apps.exercises',
+    'exercises',
     #'apps.exercises',
     'apps.measurements',
 ]
