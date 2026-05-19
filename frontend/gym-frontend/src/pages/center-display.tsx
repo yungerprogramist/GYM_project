@@ -3,7 +3,7 @@ import './center-display.scss';
 import Header from './header/header';
 import LeftColumn from './left-column/left-column';
 import RightColumn from './right-column/right-column';
-import WeightTracker from './weight-tracker/weight-tracker';
+import TrainingPrograms from './training-programs/training-programs';
 
 const CenterDisplay = () => {
   return (
@@ -11,7 +11,7 @@ const CenterDisplay = () => {
       <Header />
       <div className="center-display-content">
         <LeftColumn />
-        <CenterColumn component={WeightTracker} componentProps={{}} />
+        <CenterColumn component={TrainingPrograms} componentProps={{}} />
         <RightColumn />
       </div>
     </main>
