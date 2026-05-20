@@ -51,7 +51,7 @@ INSTALLED_APPS = [
     'exercises',
     #'apps.exercises',
     'apps.measurements',
-
+    'workouts',
     'programs.apps.ProgramsConfig',
 ]
 
