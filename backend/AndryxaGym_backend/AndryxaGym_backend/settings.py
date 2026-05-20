@@ -51,6 +51,8 @@ INSTALLED_APPS = [
     'exercises',
     #'apps.exercises',
     'apps.measurements',
+
+    'programs.apps.ProgramsConfig',
 ]
 
 AUTH_USER_MODEL = 'users.User'
