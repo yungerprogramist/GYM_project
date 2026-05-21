@@ -1,6 +1,9 @@
 .right-column {
-    // width: 20dvw;
     height: 100%;
     box-sizing: border-box;
     border-left: 1px solid #F884AC;
+}
+
+.right-column:not(:has(.calendar)) {
+    width: 20dvw;
 }
