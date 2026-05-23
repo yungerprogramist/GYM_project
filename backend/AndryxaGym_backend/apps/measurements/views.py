@@ -55,6 +55,34 @@ class WeightRecordViewSet(viewsets.ModelViewSet):
         else:
             serializer.save()
 
+    @action(detail=True, methods=['patch'])
+    def update_comment(self, request, pk=None):
+        """PATCH /api/measurements/weight/{id}/update_comment/ — обновить только комментарий"""
+        record = self.get_object()
+        comment = request.data.get('comment', None)
+
+        if comment is None:
+            return Response(
+                {'error': 'Поле comment обязательно'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        record.comment = comment
+        record.save()
+
+        serializer = self.get_serializer(record)
+        return Response(serializer.data)
+
+    @action(detail=True, methods=['delete'])
+    def delete_weight(self, request, pk=None):
+        """DELETE /api/measurements/weight/{id}/delete_weight/ — удалить запись с подтверждением"""
+        record = self.get_object()
+        record.delete()
+        return Response(
+            {'message': 'Запись веса удалена', 'id': int(pk)},
+            status=status.HTTP_200_OK
+        )
+
     @action(detail=False, methods=['get'])
     def stats(self, request):
         queryset = self.get_queryset()
