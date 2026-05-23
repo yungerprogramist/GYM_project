@@ -1,8 +1,22 @@
 Для развертывания:
 1) Создайте в данном репозиторий venv файл
-2) Подключите его 'venv\Scripts\activate'
-3) Скачайте пакеты из файла requirements.txt 'pip install -r requirements.txt'
+1) Подключите его 'venv\Scripts\activate'
+1) Скачайте пакеты из файла requirements.txt `pip install -r requirements.txt`
+1) Что-то для миграции `python manage.py makemigrations`, `python manage.py makemigrations users`, `python manage.py migrate`
+1) Запуск сервера `python manage.py runserver 8000`
+1) Добавить пользователя: 
+    ```
+    (.venv) > python manage.py shell
+    25 objects imported automatically (use -v 2 for details).
 
+    Python 3.14.4 (main, May  3 2026, 17:15:29) [GCC 16.1.1 20260430] on linux
+    Type "help", "copyright", "credits" or "license" for more information.
+    (InteractiveConsole)
+    >>> from django.contrib.auth import get_user_model
+    >>> User = get_user_model()
+    >>> user = User.objects.create_user(username='andrey', password='securepassword123')
+    >>> exit()
+    ```
 
 ## Структура Django проекта
 ```

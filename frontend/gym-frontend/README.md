@@ -1,3 +1,10 @@
+Запуск фронтенда через npm:
+1) нужен npm
+1) Перейти в gym-frontend
+1) `npm install` для скачивание зависимостей 
+1) `npm start` для запуска фронтенда 
+
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
