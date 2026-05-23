@@ -3,7 +3,7 @@
 1) Подключите его 'venv\Scripts\activate'
 1) Скачайте пакеты из файла requirements.txt `pip install -r requirements.txt`
 1) Что-то для миграции `python manage.py makemigrations`, `python manage.py makemigrations users`, `python manage.py migrate`
-1) Запуск сервера 'python manage.py runserver 8000'
+1) Запуск сервера `python manage.py runserver 8000`
 1) Добавить пользователя: 
     ```
     (.venv) > python manage.py shell
