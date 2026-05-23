@@ -6,7 +6,7 @@ const RightColumn = ({ showCalendar = false }) => {
         return (<main className="right-column">
            <Calendar
             trainingDays={["2026-05-10", "2026-05-12", "2026-05-15"]}
-            onDaySelect={(d) => console.log('selected day', d)}
+            onDaySelect={(d) => localStorage.setItem('selectedDate', d) }
            />
         </main>);
     }
