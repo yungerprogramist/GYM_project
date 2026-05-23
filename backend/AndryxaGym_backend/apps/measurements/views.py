@@ -21,6 +21,8 @@ class WeightRecordViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         queryset = WeightRecord.objects.all()
+        if self.request.user.is_authenticated:
+            queryset = queryset.filter(user=self.request.user)
 
         period = self.request.query_params.get('period', None)
         if period:
@@ -46,6 +48,12 @@ class WeightRecordViewSet(viewsets.ModelViewSet):
                     queryset = queryset.filter(date__lte=date_to)
 
         return queryset
+
+    def perform_create(self, serializer):
+        if self.request.user.is_authenticated:
+            serializer.save(user=self.request.user)
+        else:
+            serializer.save()
 
     @action(detail=False, methods=['get'])
     def stats(self, request):
