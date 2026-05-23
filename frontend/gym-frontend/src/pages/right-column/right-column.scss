@@ -1,7 +1,11 @@
 .right-column {
-    height: 100%;
+    height: 100vh;
+    position: sticky;        // приклеиваем
+    top: 0;                  // прижимаем к верху
     box-sizing: border-box;
     border-left: 1px solid #F884AC;
+    overflow-y: auto;        // если контент не влезает - свой скролл
+    flex-shrink: 0;          // не сжимается
 }
 
 .right-column:not(:has(.calendar)) {

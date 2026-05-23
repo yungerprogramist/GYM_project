@@ -12,6 +12,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
 
   return (
     <Container
+      className='login-form'
       sx={{
         display: 'flex',
         alignItems: 'center',
