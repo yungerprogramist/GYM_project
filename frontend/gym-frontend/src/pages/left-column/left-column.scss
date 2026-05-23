@@ -1,6 +1,19 @@
 .left-column {
-    width: 20dvw;
-    height: 100%;
-    box-sizing: border-box;
-    border-right: 1px solid #8FE471;
+  width: 20dvw;
+  height: 100%;  // меняем 100vh на 100%
+  position: sticky;        // ← или fixed (попробуй sticky сначала)
+  top: 0;                  // ← прижимаем к верху
+  background-color: #f5f5f5;
+  border-right: 1px solid #8FE471;
+  display: flex;
+  flex-direction: column;
+  overflow-y: hidden;
+  flex-shrink: 0;
+  align-self: flex-start;  // ← добавляем
+  
+  /* Убираем скролл у левой колонки */
+  &::-webkit-scrollbar {
+    width: 0;
+    background: transparent;
+  }
 }

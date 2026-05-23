@@ -1,11 +1,16 @@
 import './left-column.scss';
 
-const LeftColumn = () => {
+interface LeftColumnProps {
+  children?: React.ReactNode;
+}
+
+const LeftColumn = ({ children }: LeftColumnProps) => {
   return (
-    <main className="left-column">
-      
-    </main>
+    <aside className="left-column">
+      {children}
+    </aside>
   );
 };
 
 export default LeftColumn;
+

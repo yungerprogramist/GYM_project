@@ -1,0 +1,108 @@
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700&display=swap');
+.left-panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  background-color: #EEEFF1; // светло-серый фон
+  font-family: 'Manrope', sans-serif;
+  overflow: hidden; // добавляем - панель не скроллится сама
+}
+
+// Верхняя часть
+.panel-top {
+  flex: 1;
+  padding-top: 0px;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;  // ДОБАВИТЬ - скролл если много пунктов
+  min-height: 0;  // ДОБАВИТЬ
+}
+
+// Нижняя часть
+.panel-bottom {
+  background-color: #EEEFF1;
+  padding: 8px 0;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;  // ДОБАВИТЬ - чтобы не сжималась
+  min-height: fit-content; // добавляем - подстраивается под контент
+  gap: 4px;
+}
+
+// Общий стиль вкладок
+.panel-tab {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 20px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+// Верхние вкладки
+.top-tab {
+  color: #222;
+  background-color: transparent;
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.04);
+  }
+
+  &.active {
+    background-color: rgba(143, 228, 113, 0.47); 
+    color: #000;
+  }
+
+}
+
+// Нижние вкладки
+.bottom-tab {
+  color: #000;
+  background-color: #e6e6e8;
+  
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.04);
+  }
+  
+  &.active {
+    background-color: rgba(143, 228, 113, 0.47); 
+    color: #000;
+  }
+}
+
+// Иконки
+.tab-icon {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  .default-icon {
+    font-size: 20px;
+  }
+  
+  .custom-icon {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+}
+
+// Лейбл вкладки
+.tab-label {
+  font-size: 16px;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+}
+
+// Зеленая полоска-разделитель
+.green-divider {
+  height: 1px;
+  background: #8FE471;
+  width: 100%;
+  margin: 0;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
