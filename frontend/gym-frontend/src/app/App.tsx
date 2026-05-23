@@ -1,7 +1,7 @@
 import { useState, useEffect, ReactNode } from 'react';
 import './App.scss';
 import CenterDisplay from '../pages/center-display';
-import { BrowserRouter, Routes, Route, Navigate } from "react-router";
+import { BrowserRouter, Routes, Route, Navigate, useNavigate } from "react-router";
 import TrainingPrograms from '../pages/training-programs/training-programs';
 import WeightTracker from '../pages/weight-tracker/weight-tracker';
 import LoginPage from '../pages/login-page/login-page';
@@ -13,7 +13,48 @@ const SettingsPage = () => <h2>Настройки</h2>;
 const MyAccountPage = () => <h2>Мой аккаунт</h2>;
 const ActionManagerPage = () => <h2>Управление действиями</h2>;
 
-// PrivateRoute как обычная функция
+// Компонент для обработки logout с callback
+const LogoutRoute = ({ onLogout }: { onLogout: () => void }) => {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const handleLogout = async () => {
+      const refreshToken = localStorage.getItem('refresh_token');
+      const accessToken = localStorage.getItem('access_token');
+      
+      if (refreshToken && accessToken) {
+        try {
+          await fetch('/api/users/logout/', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${accessToken}`,
+            },
+            body: JSON.stringify({ refresh: refreshToken }),
+          });
+        } catch (error) {
+          console.error('Logout error:', error);
+        }
+      }
+      
+      // Очищаем localStorage
+      localStorage.removeItem('access_token');
+      localStorage.removeItem('refresh_token');
+      localStorage.removeItem('user');
+      
+      // Обновляем состояние в App
+      onLogout();
+      
+      // Редиректим на логин
+      navigate('/login', { replace: true });
+    };
+
+    handleLogout();
+  }, [navigate, onLogout]);
+
+  return <div>Выход из аккаунта...</div>;
+};
+
 function PrivateRoute({ children }: { children: ReactNode }) {
   const isAuthenticated = localStorage.getItem('access_token') !== null;
   
@@ -39,9 +80,6 @@ function App() {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('refresh_token');
-    localStorage.removeItem('user');
     setIsAuthenticated(false);
   };
 
@@ -61,12 +99,18 @@ function App() {
             path="/login" 
             element={
               isAuthenticated ? 
-              <Navigate to="/training-programs" replace /> : 
+              <Navigate to="/my-account" replace /> : 
               <CenterDisplay 
                 centerFrame={LoginPageWrapper}
                 centerFrameProps={{}}
               />
             } 
+          />
+
+          {/* Отдельный роут для logout - передаём callback */}
+          <Route 
+            path="/logout" 
+            element={<LogoutRoute onLogout={handleLogout} />} 
           />
 
           <Route 
@@ -75,7 +119,7 @@ function App() {
               <PrivateRoute>
                 <CenterDisplay 
                   centerFrame={WeightTracker} 
-                  centerFrameProps={{ onLogout: handleLogout }} 
+                  centerFrameProps={{}} 
                   showCalendar="true" 
                 />
               </PrivateRoute>
@@ -88,7 +132,7 @@ function App() {
               <PrivateRoute>
                 <CenterDisplay 
                   centerFrame={TrainingPrograms} 
-                  centerFrameProps={{ onLogout: handleLogout }} 
+                  centerFrameProps={{}} 
                 />
               </PrivateRoute>
             } 
@@ -100,7 +144,7 @@ function App() {
               <PrivateRoute>
                 <CenterDisplay 
                   centerFrame={ExercisesPage} 
-                  centerFrameProps={{ onLogout: handleLogout }} 
+                  centerFrameProps={{}} 
                 />
               </PrivateRoute>
             } 
@@ -112,7 +156,7 @@ function App() {
               <PrivateRoute>
                 <CenterDisplay 
                   centerFrame={NotebookPage} 
-                  centerFrameProps={{ onLogout: handleLogout }} 
+                  centerFrameProps={{}} 
                 />
               </PrivateRoute>
             } 
@@ -124,7 +168,7 @@ function App() {
               <PrivateRoute>
                 <CenterDisplay 
                   centerFrame={SettingsPage} 
-                  centerFrameProps={{ onLogout: handleLogout }} 
+                  centerFrameProps={{}} 
                 />
               </PrivateRoute>
             } 
@@ -136,7 +180,7 @@ function App() {
               <PrivateRoute>
                 <CenterDisplay 
                   centerFrame={MyAccountPage} 
-                  centerFrameProps={{ onLogout: handleLogout }} 
+                  centerFrameProps={{}} 
                 />
               </PrivateRoute>
             } 
@@ -148,7 +192,7 @@ function App() {
               <PrivateRoute>
                 <CenterDisplay 
                   centerFrame={ActionManagerPage} 
-                  centerFrameProps={{ onLogout: handleLogout }} 
+                  centerFrameProps={{}} 
                 />
               </PrivateRoute>
             } 

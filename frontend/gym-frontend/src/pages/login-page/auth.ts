@@ -21,7 +21,7 @@ export const refreshAccessToken = async (): Promise<string | null> => {
   if (!refresh) return null;
 
   try {
-    const response = await fetch('http://127.0.0.1:8000/api/users/refresh/', {
+    const response = await fetch('/api/users/refresh/', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -77,7 +77,7 @@ export const logout = async (): Promise<void> => {
   
   if (refreshToken && accessToken) {
     try {
-      await fetch('http://127.0.0.1:8000/api/users/logout/', {
+      await fetch('/api/users/logout/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -95,7 +95,7 @@ export const logout = async (): Promise<void> => {
 
 // Получение профиля пользователя
 export const getUserProfile = async () => {
-  const response = await authFetch('http://127.0.0.1:8000/api/users/profile/');
+  const response = await authFetch('/api/users/profile/');
   if (response.ok) {
     return await response.json();
   }
