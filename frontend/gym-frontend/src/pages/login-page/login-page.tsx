@@ -66,7 +66,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
           onClick={handleLogin}
           sx={{
             height: 45,
-            backgroundColor: 'rgba(102, 102, 102, 0.25)',
+            backgroundColor: '#c3c3c3',
             borderRadius: '32px',
             textTransform: 'none',
             mt: 3,

@@ -22,6 +22,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from 'recharts';
+import './weight-tracker.scss';
 
 // Тип данных записи замера
 interface WeightRecord {
@@ -354,6 +355,7 @@ const WeightTracker: React.FC = () => {
             border: '2px solid rgba(128, 128, 128, 1)',
             color: 'rgba(128, 128, 128, 1)',
             backgroundColor: 'transparent',
+            padding: '4px',
             '&:hover': {
               backgroundColor: 'rgba(158, 158, 158, 0.1)',
             },
@@ -361,7 +363,7 @@ const WeightTracker: React.FC = () => {
         >
           <ArrowBackIcon sx={{ fontSize: 18 }} />
         </IconButton>
-        <Typography variant="h5" sx={{ color: 'rgba(128, 128, 128, 1)', fontFamily: 'Manrope, sans-serif' }}>
+        <Typography variant="h5" sx={{ color: 'rgba(128, 128, 128, 1)', fontFamily: 'Manrope, sans-serif',  fontSize: '1.9rem'}}>
           Вес
         </Typography>
       </Box>
@@ -374,7 +376,7 @@ const WeightTracker: React.FC = () => {
         borderRadius: '16px',
         p: 2,
         bgcolor: 'white'
-      }}>
+      }} className='weight-plot' >
         {/* Переключатели периода */}
         <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
           {(['week', 'month', 'year'] as const).map((p) => (
@@ -386,7 +388,7 @@ const WeightTracker: React.FC = () => {
               sx={{
                 borderRadius: '20px',
                 textTransform: 'none',
-                ...(period === p && { bgcolor: '#e53935', '&:hover': { bgcolor: '#c62828' } })
+                ...(period === p && { bgcolor: '#F884AC', '&:hover': { bgcolor: '#c62828' } })
               }}
             >
               {p === 'week' && 'Неделя'}
@@ -406,17 +408,18 @@ const WeightTracker: React.FC = () => {
                 formatter={(value) => `${value} кг`}
                 labelFormatter={(label, payload) => {
                   if (payload && payload[0] && payload[0].payload) {
-                    return `Дата: ${payload[0].payload.fullDate}`;
+                    return `Дата : ${payload[0].payload.fullDate}`;
                   }
-                  return `Дата: ${label}`;
+                  return `Дата : ${label}`;
                 }}
               />
               <Line
                 type="monotone"
                 dataKey="weight"
-                stroke="#e53935"
+                name="Вес"
+                stroke="#F884AC"
                 strokeWidth={2}
-                dot={{ r: 4, fill: '#e53935', stroke: 'white', strokeWidth: 2 }}
+                dot={{ r: 4, fill: '#F884AC', stroke: 'white', strokeWidth: 2 }}
                 activeDot={{ r: 6 }}
               />
             </LineChart>
@@ -431,7 +434,7 @@ const WeightTracker: React.FC = () => {
       {/* Контейнер для контента */}
       <Box sx={{ display: 'flex', justifyContent: 'center' }}>
         <Box sx={{ width: '66.666%' }}>
-          <Typography variant="h6" sx={{ mt: 1, mb: 0.5, color: 'rgba(128, 128, 128, 1)', fontWeight: 'bold' }}>
+          <Typography variant="h5" sx={{ mt: 1, mb: 0.5, color: 'rgba(128, 128, 128, 1)', fontWeight: 'bold', textAlign: 'left' }}>
             Отметки веса
           </Typography>
 
@@ -446,9 +449,9 @@ const WeightTracker: React.FC = () => {
                 placeholder="например: 74.5"
                 fullWidth
                 onKeyPress={(e) => e.key === 'Enter' && handleAddWeight()}
-                sx={{ '& .MuiOutlinedInput-root': { borderRadius: '16px', bgcolor: 'rgba(251, 251, 251, 0.66)' } }}
+                sx={{ '& .MuiOutlinedInput-root': { borderRadius: '16px', bgcolor: 'rgba(251, 251, 251, 0.66)' }, '& .MuiInputLabel-root': { fontSize: '1.1rem', fontWeight: 'semibold', }, }}
               />
-              <Button onClick={handleAddWeight} sx={{ minWidth: '56px', height: '56px', borderRadius: '16px', bgcolor: '#81c784' }}>
+              <Button onClick={handleAddWeight} sx={{ minWidth: '56px', height: '56px', borderRadius: '16px', bgcolor: '#81c784',  padding: 0, }}>
                 <Box sx={{ width: '40px', height: '40px', borderRadius: '50%', border: '2px solid #1b5e20', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <AddIcon sx={{ color: '#1b5e20', fontSize: 24 }} />
                 </Box>
@@ -481,7 +484,7 @@ const WeightTracker: React.FC = () => {
                     <Typography sx={{ color: 'rgba(128, 128, 128, 1)', fontWeight: 'bold' }}>
                       {formatDate(record.date)}
                     </Typography>
-                    <Typography variant="body2" sx={{ color: 'rgba(128, 128, 128, 1)' }}>
+                    <Typography sx={{ color: 'rgba(128, 128, 128, 1)', fontSize: '1rem' }}>
                       {record.comment || 'Без комментария'}
                     </Typography>
                   </Box>
