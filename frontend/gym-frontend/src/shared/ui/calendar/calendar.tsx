@@ -8,6 +8,15 @@ import type { MuiEvent } from '@mui/x-internals/types';
 import { ru } from 'date-fns/locale';
 import { format } from 'date-fns';
 
+// Календарю нужены: 
+//   опционально список дней в которые есть тренировка
+//   опционально колбек который вызывается при выборе дня пользователем 
+type CalendarProps = {
+	trainingDays?: string[];
+	onDaySelect?: (dateIso: string) => void;
+};
+
+
 type TrainingDayProps = PickerDayProps & {
   highlightedDays?: Set<string>;
   myOnDaySelect?: (dateIso: string) => void;
@@ -24,7 +33,7 @@ function TrainingDay(props: TrainingDayProps) {
 		day={day}
 		onClick={(event: React.MouseEvent) => {
 			(other as any).onClick?.(event as unknown as MuiEvent<React.MouseEvent<HTMLButtonElement>>);
-			if (hasTraining) myOnDaySelect?.(iso);
+			myOnDaySelect?.(iso);
 		}}
 		sx={
 			hasTraining
@@ -34,11 +43,6 @@ function TrainingDay(props: TrainingDayProps) {
     />
   );
 }
-
-type CalendarProps = {
-	trainingDays?: string[];
-	onDaySelect?: (dateIso: string) => void;
-};
 
 const Calendar: React.FC<CalendarProps> = ({ trainingDays = [], onDaySelect}) => {
 	const [value, setValue] = useState<Date | null>(new Date());
