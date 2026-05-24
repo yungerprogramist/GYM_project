@@ -22,6 +22,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from 'recharts';
+import { calendarDateStore } from '../../shared/ui/calendar/calendarDataStore';
 import './weight-tracker.scss';
 
 // Тип данных записи замера
@@ -55,6 +56,7 @@ const WeightTracker: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [period, setPeriod] = useState<'week' | 'month' | 'year'>('year');
+  const selectedDate = calendarDateStore((state: any) => state.selectedDate);
 
   // 1. Получение списка записей веса (с пагинацией)
   const fetchWeightRecords = async () => {
@@ -312,7 +314,7 @@ const WeightTracker: React.FC = () => {
     const today = new Date().toISOString().split('T')[0];
 
     const newRecord = {
-      date: localStorage.getItem('selectedDate') ?? today,
+      date: selectedDate ?? today,
       weight: weightNum,
     };
 
