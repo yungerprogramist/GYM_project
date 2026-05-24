@@ -1,6 +1,6 @@
-import './right-column.scss';
-import Calendar from '../../shared/ui/calendar/calendar';
-import { useDateStore } from '@/shared/state/selectedDay'
+import './right-column.scss'
+import Calendar from '../../shared/ui/calendar/calendar'
+import { useDateStore } from '../../shared/state/selectedDay'
 
 const RightColumn = ({ showCalendar = false }) => {
     const setSelectedDateISO = useDateStore((state => state.setSelectedDateISO))
