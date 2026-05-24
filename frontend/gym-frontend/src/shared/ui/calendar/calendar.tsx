@@ -45,7 +45,7 @@ function TrainingDay(props: TrainingDayProps) {
 }
 
 const Calendar: React.FC<CalendarProps> = ({ trainingDays = [], onDaySelect}) => {
-	const [value, setValue] = useState<Date | null>(new Date());
+	const [value] = useState<Date | null>(new Date());
 	const trainingSet = useMemo(() => new Set(trainingDays.map(d => d)), [trainingDays]);
 
 	return (
