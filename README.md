@@ -1,5 +1,5 @@
 Андрюха топ
 
-(backend)[backend/project_structure.md]
+[backend](backend/project_structure.md)
 
-(frontend)[frontend/README.md]
+[frontend](frontend/README.md)
