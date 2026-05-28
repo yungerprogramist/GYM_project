@@ -2,6 +2,7 @@ from django.contrib import admin
 from .models import Program, ProgramDay, ProgramDayExercise
 
 
+<<<<<<< HEAD
 class ProgramDayExerciseInline(admin.TabularInline):
     model = ProgramDayExercise
     extra = 1
@@ -36,3 +37,8 @@ class ProgramDayExerciseAdmin(admin.ModelAdmin):
     list_display = ['exercise', 'program_day', 'exercise_order']
     ordering = ['program_day', 'exercise_order']
     list_editable = ['exercise_order']
+=======
+admin.site.register(Program)
+admin.site.register(ProgramDay)
+admin.site.register(ProgramDayExercise)
+>>>>>>> origin/main

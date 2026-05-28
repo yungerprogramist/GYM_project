@@ -1,4 +1,5 @@
 from django.contrib import admin
+<<<<<<< HEAD
 from django.contrib.auth.admin import UserAdmin
 from .models import User, UserProfile
 
@@ -21,3 +22,7 @@ class CustomUserAdmin(UserAdmin):
         if not request.user.is_superuser:
             return ['is_superuser', 'user_permissions', 'groups']
         return []
+=======
+
+# Register your models here.
+>>>>>>> origin/main

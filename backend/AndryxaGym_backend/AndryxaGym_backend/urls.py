@@ -1,13 +1,25 @@
+<<<<<<< HEAD
+=======
+"""
+URL configuration for AndryxaGym_backend project.
+"""
+
+>>>>>>> origin/main
 from django.contrib import admin
 from django.urls import path, include
 from django.conf.urls.static import static
 from rest_framework_simplejwt.views import TokenRefreshView
 from django.conf import settings
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
+<<<<<<< HEAD
 from .admin_views import model_diagram
 
 urlpatterns = [
     path('admin/model-diagram/', model_diagram, name='model-diagram'),
+=======
+
+urlpatterns = [
+>>>>>>> origin/main
     path('admin/', admin.site.urls),
     path('api/', include('notes.urls')),
     path('api/measurements/', include('measurements.urls')),

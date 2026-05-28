@@ -1,4 +1,5 @@
 from django.contrib import admin
+<<<<<<< HEAD
 from django.utils.translation import gettext_lazy as _
 from import_export import resources
 from import_export.admin import ImportExportModelAdmin
@@ -44,3 +45,20 @@ class ExerciseAdmin(ImportExportModelAdmin):
     search_fields = ['name', 'description']
     list_select_related = ['muscle_group']
     actions = [duplicate_exercises]
+=======
+from .models import MuscleGroup, Exercise
+
+
+@admin.register(MuscleGroup)
+class MuscleGroupAdmin(admin.ModelAdmin):
+    list_display = ["id", "name"]
+    search_fields = ["name"]
+
+
+@admin.register(Exercise)
+class ExerciseAdmin(admin.ModelAdmin):
+    list_display = ["id", "name", "muscle_group"]
+    list_filter = ["muscle_group"]
+    search_fields = ["name", "description"]
+    list_select_related = ["muscle_group"]  # оптимизация: не делает N+1 запросов
+>>>>>>> origin/main

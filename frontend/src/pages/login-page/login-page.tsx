@@ -37,8 +37,8 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
 
       if (response.ok) {
         // Сохраняем токены
-        localStorage.setItem('access_token', data.access);
-        localStorage.setItem('refresh_token', data.refresh);
+        localStorage.setItem('access_token', data.tokens.access);
+        localStorage.setItem('refresh_token', data.tokens.refresh);
         
         // Можно также сохранить информацию о пользователе, если она приходит
         if (data.user) {

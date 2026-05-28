@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import pytest
 
 from django.contrib.auth import get_user_model
@@ -124,3 +125,8 @@ class TestExerciseAPI:
         response = api_client.post('/api/v1/exercises/', data)
 
         assert response.status_code == status.HTTP_403_FORBIDDEN
+=======
+from django.test import TestCase
+
+# Create your tests here.
+>>>>>>> origin/main
