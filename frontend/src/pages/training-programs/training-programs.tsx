@@ -62,7 +62,7 @@ const mapDifficulty = (diff: BackendProgram['difficulty']): Difficulty => {
 // API запрос 
 const fetchPrograms = async (): Promise<Program[]> => {
   try {
-    const response = await fetch('/api/programs/');
+    const response = await fetch('/api/programs/', { headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` } });
     
     if (!response.ok) {
       throw new Error(`Ошибка HTTP: ${response.status}`);
