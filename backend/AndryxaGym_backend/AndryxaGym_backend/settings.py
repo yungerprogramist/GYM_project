@@ -29,7 +29,7 @@ INSTALLED_APPS = [
     'notes',
     'users',
     'exercises',
-    'apps.measurements',
+    'measurements',
     'workouts',
     'programs.apps.ProgramsConfig',
 ]
