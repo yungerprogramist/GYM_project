@@ -20,6 +20,7 @@ local_settings.py
 db.sqlite3
 media/
 staticfiles/
+migrations/
 
 # --- IDE и ОС ---
 .idea/

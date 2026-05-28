@@ -1,10 +1,12 @@
 from django.shortcuts import get_object_or_404
+from django.utils import timezone
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from .models import Program, ProgramDay
 from .serializers import ProgramListSerializer, ProgramDetailSerializer, ProgramDaySerializer
+from workouts.models import Workout, WorkoutExercise
 
 
 class ProgramViewSet(viewsets.ModelViewSet):
@@ -31,8 +33,27 @@ class ProgramViewSet(viewsets.ModelViewSet):
     def import_to_training(self, request, pk=None, day_id=None):
         program = self.get_object()
         day = get_object_or_404(ProgramDay, id=day_id, program=program)
-        # TODO: добавить логику импорта, когда появится модель Training/Workout
+
+        today = timezone.localdate()
+        workout, created = Workout.objects.get_or_create(
+            user=request.user,
+            date=today
+        )
+
+        imported_count = 0
+        for program_exercise in day.exercises.all():
+            workout_exercise, ex_created = WorkoutExercise.objects.get_or_create(
+                workout=workout,
+                exercise=program_exercise.exercise,
+                defaults={'exercise_order': program_exercise.exercise_order}
+            )
+            if ex_created:
+                imported_count += 1
+
         return Response({
             'status': 'success',
-            'message': f'Day "{day.name}" imported to today\'s training'
+            'message': f'День "{day.name}" импортирован в тренировку за {today}',
+            'workout_id': workout.id,
+            'imported_exercises': imported_count,
+            'total_exercises': day.exercises.count(),
         })

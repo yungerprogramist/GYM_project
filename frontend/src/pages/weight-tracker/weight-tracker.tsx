@@ -22,6 +22,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from 'recharts';
+import { useDateStore } from '../../shared/state/selectedDay'
 import './weight-tracker.scss';
 
 // Тип данных записи замера
@@ -55,6 +56,7 @@ const WeightTracker: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [period, setPeriod] = useState<'week' | 'month' | 'year'>('year');
+  const selectedDate = useDateStore(state => state.selectedDateISO);
 
   // 1. Получение списка записей веса (с пагинацией)
   const fetchWeightRecords = async () => {
@@ -75,13 +77,25 @@ const WeightTracker: React.FC = () => {
           ...record,
           weight: typeof record.weight === 'string' ? parseFloat(record.weight) : record.weight
         }));
-        setRecords(recordsWithNumberWeight);
-        return recordsWithNumberWeight;
+        
+        // Сортируем по date (от новых к старым — по дате замера)
+        const sortedRecords = [...recordsWithNumberWeight].sort((a, b) => {
+          return new Date(b.date).getTime() - new Date(a.date).getTime();
+        });
+
+        setRecords(sortedRecords);
+        return sortedRecords;
       } 
       // На всякий случай, если вдруг вернётся прямой массив
       else if (Array.isArray(data)) {
-        setRecords(data);
-        return data;
+        // Сортируем по created_at (от новых к старым)
+        const sortedRecords = [...data].sort((a, b) => {
+          if (!a.created_at) return 1;
+          if (!b.created_at) return -1;
+          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+        });
+        setRecords(sortedRecords);
+        return sortedRecords;
       }
       else {
         console.error('Бэкенд вернул неожиданный формат:', data);
@@ -179,18 +193,19 @@ const WeightTracker: React.FC = () => {
     setSelectedRecordId(null);
   };
 
-  // Добавление комментария
+  // Добавление комментария (используем специальный эндпоинт update_comment)
   const handleAddComment = async () => {
     if (selectedRecordId !== null) {
       const comment = prompt('Введите комментарий к замеру:', '');
       if (comment !== null) {
         try {
-          const response = await fetch(`/api/measurements/weight/${selectedRecordId}/`, {
+          // Используем специальный эндпоинт для обновления комментария
+          const response = await fetch(`/api/measurements/weight/${selectedRecordId}/update_comment/`, {
             method: 'PATCH',
             headers: {
               'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ comment: comment || undefined }),
+            body: JSON.stringify({ comment: comment || '' }),
           });
           
           if (!response.ok) {
@@ -214,7 +229,7 @@ const WeightTracker: React.FC = () => {
     handleMenuClose();
   };
 
-  // Редактирование веса
+  // Редактирование веса (используем стандартный PATCH, так как специального эндпоинта нет)
   const handleEditWeight = async () => {
     if (selectedRecordId !== null) {
       const record = records.find(r => r.id === selectedRecordId);
@@ -225,6 +240,7 @@ const WeightTracker: React.FC = () => {
       
       if (!isNaN(newWeight) && newWeight > 0) {
         try {
+          // Для редактирования веса используем стандартный PATCH к detail эндпоинту
           const response = await fetch(`/api/measurements/weight/${selectedRecordId}/`, {
             method: 'PATCH',
             headers: {
@@ -257,19 +273,23 @@ const WeightTracker: React.FC = () => {
     handleMenuClose();
   };
 
-  // Удаление записи
+  // Удаление записи (используем специальный эндпоинт delete_weight)
   const handleDeleteRecord = async () => {
     if (selectedRecordId !== null) {
       const confirmDelete = window.confirm('Удалить запись?');
       if (confirmDelete) {
         try {
-          const response = await fetch(`/api/measurements/weight/${selectedRecordId}/`, {
+          // Используем специальный эндпоинт для удаления
+          const response = await fetch(`/api/measurements/weight/${selectedRecordId}/delete_weight/`, {
             method: 'DELETE',
           });
           
           if (!response.ok) {
             throw new Error('Ошибка при удалении записи');
           }
+          
+          const result = await response.json();
+          console.log('Результат удаления:', result);
           
           setRecords(prevRecords => prevRecords.filter(record => record.id !== selectedRecordId));
           await fetchChartData(period);
@@ -282,7 +302,7 @@ const WeightTracker: React.FC = () => {
     handleMenuClose();
   };
 
-  // Добавление новой записи о весе
+  // Добавление новой записи о весе (используем perform_create через стандартный POST)
   const handleAddWeight = async () => {
     const weightNum = parseFloat(weightInput);
     if (isNaN(weightNum) || weightNum <= 0) {
@@ -290,14 +310,16 @@ const WeightTracker: React.FC = () => {
       return;
     }
 
+    // Сегодняшняя дата в формате YYYY-MM-DD
     const today = new Date().toISOString().split('T')[0];
 
     const newRecord = {
-      date: today,
+      date: selectedDate ?? today,
       weight: weightNum,
     };
 
     try {
+      // POST запрос вызовет perform_create в ViewSet, который сам обработает привязку к пользователю
       const response = await fetch(`/api/measurements/weight/`, {
         method: 'POST',
         headers: {
@@ -317,7 +339,14 @@ const WeightTracker: React.FC = () => {
         weight: typeof createdRecord.weight === 'string' ? parseFloat(createdRecord.weight) : createdRecord.weight
       };
       
-      setRecords(prevRecords => [...prevRecords, normalizedRecord]);
+      // Добавляем новую запись и сортируем по date (от новых к старым)
+      setRecords(prevRecords => {
+        const updatedRecords = [...prevRecords, normalizedRecord];
+        return updatedRecords.sort((a, b) => {
+          return new Date(b.date).getTime() - new Date(a.date).getTime();
+        });
+      });
+      
       await fetchChartData(period);
       setWeightInput('');
     } catch (err) {
@@ -459,46 +488,44 @@ const WeightTracker: React.FC = () => {
             </Box>
           </Box>
 
-          {/* Список замеров */}
+          {/* Список замеров - сортировка по created_at (новые сверху) */}
           {records.length === 0 ? (
             <Typography color="text.secondary" sx={{ p: 2 }}>
               Нет записей. Добавьте первый замер.
             </Typography>
           ) : (
-            [...records]
-              .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-              .map((record) => (
-                <Box
-                  key={record.id}
-                  sx={{
-                    bgcolor: 'rgba(217, 217, 217, 0.4)',
-                    borderRadius: '16px',
-                    p: 2,
-                    mb: 0.5,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                  }}
-                >
-                  <Box sx={{ textAlign: 'left' }}>
-                    <Typography sx={{ color: 'rgba(128, 128, 128, 1)', fontWeight: 'bold' }}>
-                      {formatDate(record.date)}
-                    </Typography>
-                    <Typography sx={{ color: 'rgba(128, 128, 128, 1)', fontSize: '1rem' }}>
-                      {record.comment || 'Без комментария'}
-                    </Typography>
-                  </Box>
-
-                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                    <Typography variant="h6" sx={{ fontWeight: 800, color: 'rgba(128, 128, 128, 0.4)' }}>
-                      {record.weight}
-                    </Typography>
-                    <IconButton onClick={(e) => handleMenuOpen(e, record.id)}>
-                      <MoreVertIcon />
-                    </IconButton>
-                  </Box>
+            records.map((record) => (
+              <Box
+                key={record.id}
+                sx={{
+                  bgcolor: 'rgba(217, 217, 217, 0.4)',
+                  borderRadius: '16px',
+                  p: 2,
+                  mb: 0.5,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                }}
+              >
+                <Box sx={{ textAlign: 'left' }}>
+                  <Typography sx={{ color: 'rgba(128, 128, 128, 1)', fontWeight: 'bold' }}>
+                    {formatDate(record.date)}
+                  </Typography>
+                  <Typography sx={{ color: 'rgba(128, 128, 128, 1)', fontSize: '1rem' }}>
+                    {record.comment || 'Без комментария'}
+                  </Typography>
                 </Box>
-              ))
+
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <Typography variant="h6" sx={{ fontWeight: 800, color: 'rgba(128, 128, 128, 0.4)' }}>
+                    {record.weight}
+                  </Typography>
+                  <IconButton onClick={(e) => handleMenuOpen(e, record.id)}>
+                    <MoreVertIcon />
+                  </IconButton>
+                </Box>
+              </Box>
+            ))
           )}
         </Box>
       </Box>
