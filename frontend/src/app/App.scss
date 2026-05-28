@@ -1,0 +1,20 @@
+body {
+  background: #EEEFF1;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+.app {
+  display: flex; 
+  text-align: center;
+  --border-color: linear-gradient(90deg, #8FE471 25.48%, #F884AC 73.56%);
+  width: 100%;
+  min-height: 100vh;
+}
+
+.right-content {
+  flex: 1;
+  overflow: hidden;
+  height: 100%;
+}

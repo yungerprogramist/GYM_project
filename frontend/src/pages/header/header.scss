@@ -1,0 +1,15 @@
+.header {
+    height: 6dvh;
+    width: 100%;
+    background-color: #f6f7f9;
+    box-sizing: border-box;
+    border-bottom: 1px solid;
+    border-image: var(--border-color) 1;
+    flex-shrink: 0;
+    text-align: left;
+}
+
+.header img {
+    height: 100%;
+    object-fit: contain;
+}

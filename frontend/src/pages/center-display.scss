@@ -1,0 +1,30 @@
+.center-display {
+    height: 100vh;
+    display: flex;
+    align-items: stretch;
+    justify-content: flex-start;
+    background: #EEEFF1;
+    flex-direction: column;
+    width: 100%;  // добавляем ширину
+    overflow-y: auto;
+}
+
+.center-display-content {
+    display: flex;
+    width: 100%;
+    flex: 1;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: stretch;
+    overflow-y: auto;
+    min-height: 0;  // важно для flex-контейнера
+    height: calc(100% - 6dvh);  // ДОБАВЛЯЕМ - вычитаем высоту хедера
+}
+
+.center-display:has(.login-form) .left-column {
+    background-color: #EEEFF1;
+}
+
+.center-display:has(.login-form) .left-panel {
+    display: none;
+}
