@@ -22,7 +22,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from 'recharts';
-import { useDateStore } from '../../shared/state/selectedDay'
+import { useDateStore } from '../right-column/selectedDay'
 import './weight-tracker.scss';
 
 // Тип данных записи замера
