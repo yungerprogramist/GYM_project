@@ -13,7 +13,7 @@ urlpatterns = [
     path('api/', include('notes.urls')),
     path('api/measurements/', include('apps.measurements.urls')),
     path('api/programs/', include('programs.urls')),
-    path('api/workouts/', include('workouts.urls')),
+    path('api/v1/workouts/', include('workouts.urls')),
     path('api/users/', include('users.urls')),
     path('api/users/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('api/v1/exercises/', include('exercises.urls')),

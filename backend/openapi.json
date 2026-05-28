@@ -1,17 +1,23 @@
 {
   "openapi": "3.0.3",
   "info": {
-    "title": "Exercises API",
+    "title": "Gym Project API",
     "version": "1.0.0",
-    "description": "API для управления упражнениями и группами мышц"
+    "description": "API для фитнес-трекера"
   },
   "servers": [
     {
-      "url": "/api/v1/exercises"
+      "url": "/api/v1"
     }
   ],
+  "tags": [
+    { "name": "MuscleGroups", "description": "Группы мышц" },
+    { "name": "Exercises", "description": "Каталог упражнений" },
+    { "name": "Workouts", "description": "Дневник тренировок" },
+    { "name": "Sets", "description": "Подходы" }
+  ],
   "paths": {
-    "/muscle-groups/": {
+    "/exercises/muscle-groups/": {
       "get": {
         "summary": "Список всех групп мышц",
         "tags": ["MuscleGroups"],
@@ -23,9 +29,7 @@
               "application/json": {
                 "schema": {
                   "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/MuscleGroup"
-                  }
+                  "items": { "$ref": "#/components/schemas/MuscleGroup" }
                 }
               }
             }
@@ -33,7 +37,7 @@
         }
       }
     },
-    "/muscle-groups/{id}/": {
+    "/exercises/muscle-groups/{id}/": {
       "get": {
         "summary": "Детали группы мышц",
         "tags": ["MuscleGroups"],
@@ -54,7 +58,7 @@
         }
       }
     },
-    "/": {
+    "/exercises/": {
       "get": {
         "summary": "Список упражнений",
         "tags": ["Exercises"],
@@ -101,7 +105,7 @@
         "requestBody": {
           "required": true,
           "content": {
-            "multipart/form-data": {
+            "application/json": {
               "schema": { "$ref": "#/components/schemas/ExerciseWrite" }
             }
           }
@@ -120,7 +124,7 @@
         }
       }
     },
-    "/{id}/": {
+    "/exercises/{id}/": {
       "get": {
         "summary": "Детали упражнения",
         "tags": ["Exercises"],
@@ -151,7 +155,7 @@
         "requestBody": {
           "required": true,
           "content": {
-            "multipart/form-data": {
+            "application/json": {
               "schema": { "$ref": "#/components/schemas/ExerciseWrite" }
             }
           }
@@ -170,34 +174,6 @@
           "404": { "description": "Не найдено" }
         }
       },
-      "patch": {
-        "summary": "Частичное обновление упражнения (только admin)",
-        "tags": ["Exercises"],
-        "security": [{ "bearerAuth": [] }],
-        "parameters": [
-          { "$ref": "#/components/parameters/id" }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "multipart/form-data": {
-              "schema": { "$ref": "#/components/schemas/ExerciseWrite" }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Обновлено",
-            "content": {
-              "application/json": {
-                "schema": { "$ref": "#/components/schemas/Exercise" }
-              }
-            }
-          },
-          "403": { "description": "Нет прав" },
-          "404": { "description": "Не найдено" }
-        }
-      },
       "delete": {
         "summary": "Удалить упражнение (только admin)",
         "tags": ["Exercises"],
@@ -209,6 +185,262 @@
           "204": { "description": "Удалено" },
           "403": { "description": "Нет прав" },
           "404": { "description": "Не найдено" }
+        }
+      }
+    },
+    "/workouts/": {
+      "get": {
+        "summary": "Список тренировок",
+        "tags": ["Workouts"],
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Успешно",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/WorkoutListItem" }
+                }
+              }
+            }
+          },
+          "401": { "description": "Не авторизован" }
+        }
+      }
+    },
+    "/workouts/{workout_id}/": {
+      "get": {
+        "summary": "Детали тренировки",
+        "tags": ["Workouts"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          { "$ref": "#/components/parameters/workout_id" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Успешно",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Workout" }
+              }
+            }
+          },
+          "404": { "description": "Не найдена или чужая" }
+        }
+      },
+      "delete": {
+        "summary": "Удалить тренировку",
+        "tags": ["Workouts"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          { "$ref": "#/components/parameters/workout_id" }
+        ],
+        "responses": {
+          "204": { "description": "Удалено" },
+          "404": { "description": "Не найдена или чужая" }
+        }
+      }
+    },
+    "/workouts/today/": {
+      "get": {
+        "summary": "Сегодняшняя тренировка (автосоздание)",
+        "tags": ["Workouts"],
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Успешно",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Workout" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/workouts/date/{date}/": {
+      "get": {
+        "summary": "Тренировка по дате",
+        "tags": ["Workouts"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "date",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "date" },
+            "example": "2026-05-21"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Успешно",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Workout" }
+              }
+            }
+          },
+          "400": { "description": "Неверный формат даты" },
+          "404": { "description": "Тренировка не найдена" }
+        }
+      }
+    },
+    "/workouts/{workout_id}/stats/": {
+      "get": {
+        "summary": "Статистика тренировки",
+        "tags": ["Workouts"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          { "$ref": "#/components/parameters/workout_id" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Успешно",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/WorkoutStats" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/workouts/{workout_id}/exercises/": {
+      "post": {
+        "summary": "Добавить упражнение в тренировку",
+        "tags": ["Workouts"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          { "$ref": "#/components/parameters/workout_id" }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "exercise_id": { "type": "integer", "example": 1 },
+                  "exercise_order": { "type": "integer", "example": 1 }
+                },
+                "required": ["exercise_id"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Добавлено",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/WorkoutExercise" }
+              }
+            }
+          },
+          "409": { "description": "Уже в тренировке" }
+        }
+      }
+    },
+    "/workouts/{workout_id}/exercises/{exercise_id}/": {
+      "delete": {
+        "summary": "Удалить упражнение из тренировки",
+        "tags": ["Workouts"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          { "$ref": "#/components/parameters/workout_id" },
+          { "$ref": "#/components/parameters/exercise_id" }
+        ],
+        "responses": {
+          "204": { "description": "Удалено" }
+        }
+      }
+    },
+    "/workouts/{workout_id}/exercises/{exercise_id}/sets/": {
+      "post": {
+        "summary": "Добавить подход",
+        "tags": ["Sets"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          { "$ref": "#/components/parameters/workout_id" },
+          { "$ref": "#/components/parameters/exercise_id" }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "weight": { "type": "number", "example": 80 },
+                  "reps": { "type": "integer", "example": 10 },
+                  "set_number": { "type": "integer", "example": 1 }
+                },
+                "required": ["weight", "reps"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Создано",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Set" }
+              }
+            }
+          },
+          "400": { "description": "Вес ≤ 0 или повторения ≤ 0" }
+        }
+      }
+    },
+    "/sets/{set_id}/": {
+      "put": {
+        "summary": "Обновить подход",
+        "tags": ["Sets"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          { "$ref": "#/components/parameters/set_id" }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "weight": { "type": "number" },
+                  "reps": { "type": "integer" },
+                  "set_number": { "type": "integer" }
+                },
+                "required": ["weight", "reps", "set_number"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Обновлено",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Set" }
+              }
+            }
+          },
+          "404": { "description": "Не найден или чужой" }
+        }
+      },
+      "delete": {
+        "summary": "Удалить подход",
+        "tags": ["Sets"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          { "$ref": "#/components/parameters/set_id" }
+        ],
+        "responses": {
+          "204": { "description": "Удалено" },
+          "404": { "description": "Не найден или чужой" }
         }
       }
     }
@@ -226,80 +458,110 @@
         "name": "id",
         "in": "path",
         "required": true,
-        "schema": {
-          "type": "integer"
-        }
+        "schema": { "type": "integer" }
+      },
+      "workout_id": {
+        "name": "workout_id",
+        "in": "path",
+        "required": true,
+        "schema": { "type": "integer" }
+      },
+      "exercise_id": {
+        "name": "exercise_id",
+        "in": "path",
+        "required": true,
+        "schema": { "type": "integer" }
+      },
+      "set_id": {
+        "name": "set_id",
+        "in": "path",
+        "required": true,
+        "schema": { "type": "integer" }
       }
     },
     "schemas": {
       "MuscleGroup": {
         "type": "object",
         "properties": {
-          "id": {
-            "type": "integer",
-            "readOnly": true
-          },
-          "name": {
-            "type": "string",
-            "maxLength": 100
-          }
+          "id": { "type": "integer", "readOnly": true },
+          "name": { "type": "string", "maxLength": 100 }
         },
         "required": ["name"]
       },
       "Exercise": {
         "type": "object",
         "properties": {
-          "id": {
-            "type": "integer",
-            "readOnly": true
-          },
-          "muscle_group": {
-            "type": "integer",
-            "description": "ID группы мышц"
-          },
-          "muscle_group_name": {
-            "type": "string",
-            "readOnly": true,
-            "description": "Название группы мышц"
-          },
-          "name": {
-            "type": "string",
-            "maxLength": 200
-          },
-          "description": {
-            "type": "string",
-            "default": ""
-          },
-          "image": {
-            "type": "string",
-            "format": "uri",
-            "nullable": true,
-            "readOnly": true
-          }
+          "id": { "type": "integer", "readOnly": true },
+          "muscle_group": { "type": "integer", "description": "ID группы мышц" },
+          "muscle_group_name": { "type": "string", "readOnly": true },
+          "name": { "type": "string", "maxLength": 200 },
+          "description": { "type": "string", "default": "" },
+          "image": { "type": "string", "format": "uri", "nullable": true, "readOnly": true }
         }
       },
       "ExerciseWrite": {
         "type": "object",
         "properties": {
-          "muscle_group": {
-            "type": "integer",
-            "description": "ID группы мышц"
-          },
-          "name": {
-            "type": "string",
-            "maxLength": 200
-          },
-          "description": {
-            "type": "string",
-            "default": ""
-          },
-          "image": {
-            "type": "string",
-            "format": "binary",
-            "nullable": true
-          }
+          "muscle_group": { "type": "integer", "description": "ID группы мышц" },
+          "name": { "type": "string", "maxLength": 200 },
+          "description": { "type": "string", "default": "" },
+          "image": { "type": "string", "format": "binary", "nullable": true }
         },
         "required": ["muscle_group", "name"]
+      },
+      "WorkoutListItem": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "readOnly": true },
+          "date": { "type": "string", "format": "date" },
+          "exercise_count": { "type": "integer" }
+        }
+      },
+      "Workout": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "readOnly": true },
+          "date": { "type": "string", "format": "date" },
+          "exercises": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/WorkoutExercise" }
+          },
+          "exercise_count": { "type": "integer" },
+          "set_count": { "type": "integer" },
+          "total_weight": { "type": "number" }
+        }
+      },
+      "WorkoutExercise": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "readOnly": true },
+          "exercise_id": { "type": "integer", "writeOnly": true },
+          "exercise_name": { "type": "string", "readOnly": true },
+          "muscle_group": { "type": "string", "readOnly": true },
+          "exercise_order": { "type": "integer" },
+          "sets": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/Set" }
+          }
+        }
+      },
+      "Set": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "readOnly": true },
+          "weight": { "type": "number", "example": 80 },
+          "reps": { "type": "integer", "example": 10 },
+          "set_number": { "type": "integer", "example": 1 }
+        }
+      },
+      "WorkoutStats": {
+        "type": "object",
+        "properties": {
+          "date": { "type": "string", "format": "date" },
+          "exercise_count": { "type": "integer" },
+          "set_count": { "type": "integer" },
+          "total_weight": { "type": "number" }
+        }
       }
     }
   }
