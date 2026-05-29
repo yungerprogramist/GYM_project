@@ -10,6 +10,8 @@ class Workout(models.Model):
         related_name='workouts'
     )
     date = models.DateField()
+    # date = models.DateTimeField(auto_now_add=True)
+    notes = models.TextField(blank=True, null=True)
 
     class Meta:
         unique_together = ['user', 'date']

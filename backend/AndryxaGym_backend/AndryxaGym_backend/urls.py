@@ -10,6 +10,13 @@ from django.conf import settings
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 from .admin_views import model_diagram
     
+from apps.calendar.views import (
+    CalendarView,
+    StatisticsView,
+    StatisticsPeriodView,
+    RecentExerciseView,
+    RecentExerciseUpdateView
+)
 
 urlpatterns = [
     path('api/', include('notes.urls')),
@@ -23,4 +30,10 @@ urlpatterns = [
     path('api/v1/exercises/', include('exercises.urls')),
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
     path('api/docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
+    path('api/calendar/month/<int:year>/<int:month>/', CalendarView.as_view()),
+    path('api/statistics/summary/', StatisticsView.as_view()),
+    path('api/statistics/period/', StatisticsPeriodView.as_view()),
+    path('api/exercises/recent/', RecentExerciseView.as_view()),
+    path('api/exercises/recent/update/', RecentExerciseUpdateView.as_view()),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
