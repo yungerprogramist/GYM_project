@@ -2,24 +2,15 @@ import React, { useState, useEffect } from 'react';
 import {
   Typography,
   Box,
+  IconButton,
   Card,
+  CardContent,
   CardMedia,
   Chip,
   CircularProgress,
   Alert,
 } from '@mui/material';
-
-import ProgramDetailsPage, {
-  ProgramDay,
-} from '../program-details/program-details';
-
-import ex1 from '../program-details/assets/exercise_1.png';
-import ex2 from '../program-details/assets/exercise_2.png';
-import ex3 from '../program-details/assets/exercise_3.png';
-import ex4 from '../program-details/assets/exercise_4.png';
-import ex5 from '../program-details/assets/exercise_5.png';
-import ex6 from '../program-details/assets/exercise_6.png';
-import ex7 from '../program-details/assets/exercise_7.png';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 
 import img10Nedel from './image/10nedel-ectomorph.jpg';
@@ -107,43 +98,6 @@ const mockPrograms: Program[] = [
   { id: '5', name: '5-дневная программа Дуга Лоренса', difficulty: 'Средний', image: imgLorenc },
   { id: '6', name: '12-недельная программа тренировок для новичков', difficulty: 'Начинающий', image: img12Nedel },
   { id: '7', name: 'Программа Фулбоди на силу', difficulty: 'Продвинутый', image: imgFullbody },
-];
-
-const FIGMA_PROGRAM_TITLE = 'Сила Гипертрофия Верх Низ';
-
-const FIGMA_DAYS: ProgramDay[] = [
-  {
-    dayNumber: 1,
-    title: 'Сила верха',
-    dots: ['green', 'green', 'purple', 'purple', 'blue', 'pink', 'pink'],
-    exercises: [
-      { id: 'd1-e1', name: 'Жим лежа - штанга', rightLabel: '3 ПОДХ', color: 'green', iconSrc: ex1 },
-      { id: 'd1-e2', name: 'Жим лежа (наклон) - гантели', rightLabel: '3 ПОДХ', color: 'green', iconSrc: ex2 },
-      { id: 'd1-e3', name: 'Тяга в наклоне - штанга', rightLabel: '3 ПОДХ', color: 'purple', iconSrc: ex3 },
-      { id: 'd1-e4', name: 'Вертикальная тяга - верхний блок', rightLabel: '3 ПОДХ', color: 'purple', iconSrc: ex4 },
-      { id: 'd1-e5', name: 'Жим над головой - штанга', rightLabel: '2 ПОДХ', color: 'blue', iconSrc: ex5 },
-      { id: 'd1-e6', name: 'Сгибание рук - штанга', rightLabel: '2 ПОДХ', color: 'pink', iconSrc: ex6 },
-      { id: 'd1-e7', name: 'Разгибание рук лежа - штанга', rightLabel: '2 ПОДХ', color: 'pink', iconSrc: ex7 },
-    ],
-  },
-  {
-    dayNumber: 2,
-    title: 'Сила низа',
-    dots: ['green', 'green', 'green', 'green', 'green'],
-    exercises: [],
-  },
-  {
-    dayNumber: 4,
-    title: 'Гипертрофия верха',
-    dots: ['green', 'green', 'purple', 'purple', 'blue', 'pink', 'pink'],
-    exercises: [],
-  },
-  {
-    dayNumber: 5,
-    title: 'Гипертрофия низа',
-    dots: ['green', 'green', 'green', 'green', 'green'],
-    exercises: [],
-  },
 ];
 
 
@@ -263,7 +217,18 @@ const TrainingPrograms = () => {
 
   // детали программы
   if (selectedId) {
-    const program = mockPrograms.find(p => p.id === selectedId);
+    const program = programs.find(p => p.id === selectedId);
+    
+    if (!program) {
+      return (
+        <Box sx={{ py: 4, px: 2 }}>
+          <IconButton onClick={() => setSelectedId(null)} sx={{ mb: 2 }}>
+            <ArrowBackIcon />
+          </IconButton>
+          <Typography>Программа не найдена</Typography>
+        </Box>
+      );
+    }
     
     return (
       <Box sx={{ 
@@ -272,26 +237,35 @@ const TrainingPrograms = () => {
         px: { xs: 2, sm: 3, md: 4 }
       }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 3, flexWrap: 'wrap' }}>
-          <IconButton onClick={() => setSelectedId(null)} sx={{ border: '2px solid rgba(128,128,128,0.5)', borderRadius: '12px' }}>
+          <IconButton 
+            onClick={() => setSelectedId(null)} 
+            sx={{ border: '2px solid rgba(128,128,128,0.5)', borderRadius: '12px' }}
+          >
             <ArrowBackIcon />
           </IconButton>
-          <Typography variant="h5" sx={{ fontWeight: 'bold' }}>{program?.name}</Typography>
-          <Chip label={program?.difficulty} sx={{ bgcolor: difficultyColors[program?.difficulty as Difficulty].bg }} />
+          <Typography variant="h5" sx={{ fontWeight: 'bold' }}>{program.name}</Typography>
+          <Chip 
+            label={program.difficulty} 
+            sx={{ 
+              bgcolor: difficultyColors[program.difficulty].bg,
+              color: difficultyColors[program.difficulty].color
+            }} 
+          />
         </Box>
         
         <CardMedia 
           component="img" 
           height="400" 
-          image={program?.image} 
-          alt={program?.name} 
+          image={program.image || imgGanteli} 
+          alt={program.name} 
           sx={{ borderRadius: '16px', mb: 3, objectFit: 'cover' }} 
         />
         
         <Box sx={{ p: 3, bgcolor: 'white', borderRadius: '16px' }}>
           <Typography variant="h6" gutterBottom>О программе</Typography>
           <Typography variant="body2" sx={{ color: 'text.secondary', mb: 1 }}>
-            Подробное описание программы "{program?.name}". 
-            Эта программа рассчитана на {program?.difficulty.toLowerCase()} уровень подготовки.
+            Подробное описание программы "{program.name}". 
+            Эта программа рассчитана на {program.difficulty.toLowerCase()} уровень подготовки.
           </Typography>
           <Typography variant="body2" sx={{ color: 'text.secondary' }}>
             Включает в себя комплекс упражнений для достижения максимальных результатов.
