@@ -10,7 +10,6 @@ from .models import Workout, RecentExercise
 from .serializers import WorkoutSerializer, RecentExerciseSerializer
 from exercises.models import Exercise  # Импортируй свою модель Exercise
 
-
 class CalendarView(APIView):
     """
     GET /api/calendar/month/{year}/{month}/
@@ -126,8 +125,18 @@ class RecentExerciseUpdateView(APIView):
     Body: {"exercise_id": 123}
     """
     def post(self, request):
+    # 1. Явная проверка: если пользоваSтель не залогинен → сразу останавливаемся
+        if not request.user.is_authenticated:
+            return Response(
+                {'error': 'Authentication credentials were not provided or are invalid.'}, 
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+            
         user = request.user
+        print(request)
         exercise_id = request.data.get('exercise_id')
+        print(user)
+        print(exercise_id)
         
         if not exercise_id:
             return Response(
@@ -135,17 +144,17 @@ class RecentExerciseUpdateView(APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
         
-        # Получаем или создаем запись
+        # 2. Получаем или создаем запись
         recent_ex, created = RecentExercise.objects.get_or_create(
             user=user,
             exercise_id=exercise_id
         )
         
-        # Увеличиваем счетчик
-        recent_ex.increment_use()
+        # 3. Увеличиваем счетчик
+        # recent_ex.increment_use()
         
-        # Очищаем кэш статистики
+        # 4. Очищаем кэш статистики
         cache.delete(f"stats_summary_{user.id}")
         
         serializer = RecentExerciseSerializer(recent_ex)
-        return Response(serializer.data)
+        return Response(serializer.data, status=status.HTTP_200_OK)

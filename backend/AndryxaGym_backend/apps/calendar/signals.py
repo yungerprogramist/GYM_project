@@ -17,7 +17,7 @@ def update_recent_exercise(sender, instance, created, **kwargs):
             user=user,
             exercise=exercise
         )
-        recent_ex.increment_use()
+        # recent_ex.increment_use()
         
         # Очищаем кэш
         cache.delete(f"stats_summary_{user.id}")
