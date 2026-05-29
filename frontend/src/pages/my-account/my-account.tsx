@@ -6,8 +6,8 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import { Box, Divider, Grid, IconButton, Paper, Typography } from '@mui/material';
 import { format, isSameDay, parseISO } from 'date-fns';
 import { ru } from 'date-fns/locale';
+import { useDateStore } from '../right-column/selectedDay';
 
-import { useDateStore } from '../../shared/state/selectedDay';
 
 export interface Exercise {
   id: string;
