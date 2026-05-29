@@ -52,7 +52,6 @@ const mockPrograms: Program[] = [
   { id: '7', name: 'Программа Фулбоди на силу', difficulty: 'Продвинутый', image: imgFullbody },
 ];
 
-// Данные для точного соответствия макетам Frame 71/72.
 const FIGMA_PROGRAM_TITLE = 'Сила Гипертрофия Верх Низ';
 
 const FIGMA_DAYS: ProgramDay[] = [
