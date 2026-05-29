@@ -12,9 +12,9 @@ from .admin_views import model_diagram
     
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
     path('api/', include('notes.urls')),
     path('admin/model-diagram/', model_diagram, name='model-diagram'),
+    path('admin/', admin.site.urls),
     path('api/measurements/', include('measurements.urls')),
     path('api/programs/', include('programs.urls')),
     path('api/v1/workouts/', include('workouts.urls')),
