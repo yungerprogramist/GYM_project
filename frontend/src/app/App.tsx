@@ -5,6 +5,7 @@ import { BrowserRouter, Routes, Route, Navigate, useNavigate } from "react-route
 import TrainingPrograms from '../pages/training-programs/training-programs';
 import WeightTracker from '../pages/weight-tracker/weight-tracker';
 import LoginPage from '../pages/login-page/login-page';
+import useAuthStore from '../features/auth';
 import MyAccountPage from '../pages/my-account/my-account';
 
 // Компоненты-заглушки
@@ -66,10 +67,16 @@ function PrivateRoute({ children }: { children: ReactNode }) {
 }
 
 function App() {
+  const _initAuth = useAuthStore((state) => state._initAuth);
+  const isLoading = useAuthStore((state) => state.isLoading);
+
+
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    _initAuth() // нужно для начальной инициализации useAuthStore
+
     const token = localStorage.getItem('access_token');
     setIsAuthenticated(!!token);
     setLoading(false);
