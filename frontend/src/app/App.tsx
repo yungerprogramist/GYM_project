@@ -5,14 +5,15 @@ import { BrowserRouter, Routes, Route, Navigate, useNavigate } from "react-route
 import TrainingPrograms from '../pages/training-programs/training-programs';
 import WeightTracker from '../pages/weight-tracker/weight-tracker';
 import LoginPage from '../pages/login-page/login-page';
-import useAuthStore from '../features/auth';
 import MyAccountPage from '../pages/my-account/my-account';
+import useAuthStore from '../features/auth';
 
 // Компоненты-заглушки
 const ExercisesPage = () => <h2>Упражнения</h2>;
 const NotebookPage = () => <h2>Блокнот</h2>;
 const SettingsPage = () => <h2>Настройки</h2>;
 const ActionManagerPage = () => <h2>Управление действиями</h2>;
+
 
 // Компонент для обработки logout с callback
 const LogoutRoute = ({ onLogout }: { onLogout: () => void }) => {
