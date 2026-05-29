@@ -4,6 +4,15 @@ from django.contrib.auth.models import AbstractUser
 
 
 class User(AbstractUser):
+<<<<<<< HEAD
+    def __str__(self):
+        return self.username
+
+    class Meta:
+        verbose_name = 'User'
+        verbose_name_plural = 'Users'
+
+=======
 
     def __str__(self):
         return self.username
@@ -11,6 +20,7 @@ class User(AbstractUser):
     class Meta:
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Пользователи'
+>>>>>>> origin/main
 
 class UserProfile(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)

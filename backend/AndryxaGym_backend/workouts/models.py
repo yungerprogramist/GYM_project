@@ -14,8 +14,13 @@ class Workout(models.Model):
     class Meta:
         unique_together = ['user', 'date']
         ordering = ['-date']
+<<<<<<< HEAD
+        verbose_name = 'Workout'
+        verbose_name_plural = 'Workouts'
+=======
         verbose_name = 'Тренировка'
         verbose_name_plural = 'Тренировки'
+>>>>>>> origin/main
 
     def __str__(self):
         return f"{self.user.username} - {self.date}"
@@ -37,11 +42,19 @@ class WorkoutExercise(models.Model):
     class Meta:
         unique_together = ['workout', 'exercise']
         ordering = ['exercise_order']
+<<<<<<< HEAD
+        verbose_name = 'Workout Exercise'
+        verbose_name_plural = 'Workout Exercises'
+
+    def __str__(self):
+        return f"{self.exercise.name} (order: {self.exercise_order})"
+=======
         verbose_name = 'Упражнение в тренировке'
         verbose_name_plural = 'Упражнения в тренировке'
 
     def __str__(self):
         return f"{self.exercise.name} (порядок: {self.exercise_order})"
+>>>>>>> origin/main
 
 
 class Set(models.Model):
@@ -56,8 +69,16 @@ class Set(models.Model):
 
     class Meta:
         ordering = ['set_number']
+<<<<<<< HEAD
+        verbose_name = 'Set'
+        verbose_name_plural = 'Sets'
+
+    def __str__(self):
+        return f"Set {self.set_number}: {self.weight} kg × {self.reps} reps"
+=======
         verbose_name = 'Подход'
         verbose_name_plural = 'Подходы'
 
     def __str__(self):
         return f"Подход {self.set_number}: {self.weight} кг × {self.reps} повт."
+>>>>>>> origin/main
