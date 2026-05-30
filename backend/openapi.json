@@ -720,7 +720,8 @@
           "name": { "type": "string", "maxLength": 200 },
           "description": { "type": "string", "default": "" },
           "image": { "type": "string", "format": "uri", "nullable": true, "readOnly": true }
-        }
+        },
+        "required": ["muscle_group", "muscle_group_name", "name"]
       },
       "ExerciseWrite": {
         "type": "object",
