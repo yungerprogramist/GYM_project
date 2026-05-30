@@ -14,6 +14,7 @@ authClient.interceptors.request.use((config) => {
   if (token && config.headers) {
     config.headers.Authorization = `Bearer ${token}`;
   }
+  console.log("какой-то запрос: ", config);
   return config;
 });
 
@@ -27,6 +28,7 @@ authClient.interceptors.response.use(
     // Проверяем: это 401 ошибка и мы еще НЕ пытались обновиться в рамках этого запроса?
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true; // Ставим флаг, чтобы не уйти в бесконечный цикл
+      console.log("нужно переотправить запрос: ", error.response);
 
       const refreshResult = await useAuthStore.getState()._refreshToken();
 

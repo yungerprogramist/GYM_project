@@ -18,48 +18,56 @@ const ActionManagerPage = () => <h2>Управление действиями</h
 // Компонент для обработки logout с callback
 const LogoutRoute = ({ onLogout }: { onLogout: () => void }) => {
   const navigate = useNavigate();
+  const logout = useAuthStore((state) => state.logout);
 
   useEffect(() => {
-    const handleLogout = async () => {
-      const refreshToken = localStorage.getItem('refresh_token');
-      const accessToken = localStorage.getItem('access_token');
-      
-      if (refreshToken && accessToken) {
-        try {
-          await fetch('/api/users/logout/', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${accessToken}`,
-            },
-            body: JSON.stringify({ refresh: refreshToken }),
-          });
-        } catch (error) {
-          console.error('Logout error:', error);
-        }
-      }
-      
-      // Очищаем localStorage
-      localStorage.removeItem('access_token');
-      localStorage.removeItem('refresh_token');
-      localStorage.removeItem('user');
-      
-      // Обновляем состояние в App
-      onLogout();
-      
-      // Редиректим на логин
+    try {
+      logout();
       navigate('/login', { replace: true });
-    };
-
-    handleLogout();
+    } catch (error) {
+      console.error(error);
+    }
+    // logout();
+//     const handleLogout = async () => {
+//       const refreshToken = localStorage.getItem('refresh_token');
+//       const accessToken = localStorage.getItem('access_token');
+      
+//       if (refreshToken && accessToken) {
+//         try {
+//           await fetch('/api/users/logout/', {
+//             method: 'POST',
+//             headers: {
+//               'Content-Type': 'application/json',
+//               'Authorization': `Bearer ${accessToken}`,
+//             },
+//             body: JSON.stringify({ refresh: refreshToken }),
+//           });
+//         } catch (error) {
+//           console.error('Logout error:', error);
+//         }
+//       }
+      
+//       // Очищаем localStorage
+//       localStorage.removeItem('access_token');
+//       localStorage.removeItem('refresh_token');
+//       localStorage.removeItem('user');
+      
+//       // Обновляем состояние в App
+//       onLogout();
+      
+//       // Редиректим на логин
+//       navigate('/login', { replace: true });
+//     };
+    // handleLogout();
   }, [navigate, onLogout]);
 
   return <div>Выход из аккаунта...</div>;
 };
 
 function PrivateRoute({ children }: { children: ReactNode }) {
-  const isAuthenticated = localStorage.getItem('access_token') !== null;
-  
+  // const isAuthenticated = localStorage.getItem('access_token') !== null;
+  const isAuthenticated = useAuthStore(state => state.isAuth);
+
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
@@ -69,34 +77,35 @@ function PrivateRoute({ children }: { children: ReactNode }) {
 
 function App() {
   const _initAuth = useAuthStore((state) => state._initAuth);
-  const isLoading = useAuthStore((state) => state.isLoading);
+  const loading = useAuthStore((state) => state.isLoading);
+  const isAuthenticated = useAuthStore(state => state.isAuth);
 
 
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [loading, setLoading] = useState(true);
+  // const [isAuthenticated, setIsAuthenticated] = useState(false);
+  // const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     _initAuth() // нужно для начальной инициализации useAuthStore
 
-    const token = localStorage.getItem('access_token');
-    setIsAuthenticated(!!token);
-    setLoading(false);
+    // const token = localStorage.getItem('access_token');
+    // setIsAuthenticated(!!token);
+    // setLoading(false);
   }, []);
 
-  const handleLoginSuccess = () => {
-    setIsAuthenticated(true);
-  };
+  // const handleLoginSuccess = () => {
+  //   setIsAuthenticated(true);
+  // };
 
-  const handleLogout = () => {
-    setIsAuthenticated(false);
-  };
+  // const handleLogout = () => {
+  //   setIsAuthenticated(false);
+  // };
 
   if (loading) {
     return <div>Загрузка...</div>;
   }
 
   const LoginPageWrapper = () => (
-    <LoginPage onLoginSuccess={handleLoginSuccess} />
+    <LoginPage onLoginSuccess={() => {}} />
   );
 
   return (
@@ -118,7 +127,7 @@ function App() {
           {/* Отдельный роут для logout - передаём callback */}
           <Route 
             path="/logout" 
-            element={<LogoutRoute onLogout={handleLogout} />} 
+            element={<LogoutRoute onLogout={() => {}} />} 
           />
 
           <Route 
