@@ -77,16 +77,18 @@ function PrivateRoute({ children }: { children: ReactNode }) {
 
 function App() {
   const _initAuth = useAuthStore((state) => state._initAuth);
-  const loading = useAuthStore((state) => state.isLoading);
+  const isLoading = useAuthStore((state) => state.isLoading);
   const isAuthenticated = useAuthStore(state => state.isAuth);
 
 
   // const [isAuthenticated, setIsAuthenticated] = useState(false);
-  // const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     _initAuth() // нужно для начальной инициализации useAuthStore
-
+    if (isAuthenticated) {
+      setLoading(false);
+    }
     // const token = localStorage.getItem('access_token');
     // setIsAuthenticated(!!token);
     // setLoading(false);

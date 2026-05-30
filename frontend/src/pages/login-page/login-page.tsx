@@ -20,6 +20,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
     switch (result) {
       case "successful":
         // router.push('/dashboard');
+        setError(null);
         onLoginSuccess();
         break;
       case "user not found":
