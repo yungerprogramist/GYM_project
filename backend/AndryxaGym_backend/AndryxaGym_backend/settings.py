@@ -27,7 +27,8 @@ INSTALLED_APPS = [
     'drf_spectacular',
     'import_export',
     'django_extensions',
-
+    'django_filters',
+    
     'notes',
     'users',
     'exercises',

@@ -211,6 +211,45 @@
         }
       }
     },
+    "/workouts/create/": {
+      "post": {
+        "summary": "Создать тренировку на дату",
+        "description": "Создаёт тренировку на указанную дату. Если тренировка уже существует — возвращает 409.",
+        "tags": ["Workouts"],
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "date": {
+                    "type": "string",
+                    "format": "date",
+                    "example": "2026-06-01"
+                  }
+                },
+                "required": ["date"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Создано",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Workout" }
+              }
+            }
+          },
+          "400": { "description": "Неверный формат даты" },
+          "401": { "description": "Не авторизован" },
+          "409": { "description": "Тренировка на эту дату уже существует" }
+        }
+      }
+    },
     "/workouts/{workout_id}/": {
       "get": {
         "summary": "Детали тренировки",
@@ -740,6 +779,17 @@
           "date": { "type": "string", "format": "date" },
           "exercise_count": { "type": "integer" }
         }
+      },
+      "WorkoutCreate": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string",
+            "format": "date",
+            "example": "2026-06-01"
+          }
+        },
+        "required": ["date"]
       },
       "Workout": {
         "type": "object",
