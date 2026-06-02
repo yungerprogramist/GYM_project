@@ -7,6 +7,7 @@ import WeightTracker from '../pages/weight-tracker/weight-tracker';
 import LoginPage from '../pages/login-page/login-page';
 import MyAccountPage from '../pages/my-account/my-account';
 import useAuthStore from '../features/auth';
+import RecentExercisesPage from '../pages/recent-exercises/RecentExercisesPage';
 
 // Компоненты-заглушки
 const ExercisesPage = () => <h2>Упражнения</h2>;
@@ -128,6 +129,18 @@ function App() {
           <Route 
             path="/logout" 
             element={<LogoutRoute onLogout={() => {}} />} 
+          />
+
+          <Route 
+            path="/recent-exercises" 
+            element={
+              <PrivateRoute>
+                <CenterDisplay 
+                  centerFrame={RecentExercisesPage} 
+                  centerFrameProps={{}} 
+                />
+              </PrivateRoute>
+            } 
           />
 
           <Route 

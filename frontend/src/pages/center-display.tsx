@@ -1,3 +1,4 @@
+import RecentExercisesPage from '../pages/recent-exercises/RecentExercisesPage';
 import CenterColumn from './center-column/center-column';
 import './center-display.scss';
 import Header from './header/header';
