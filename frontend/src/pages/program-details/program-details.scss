@@ -1,0 +1,150 @@
+.program-details {
+  min-height: 100%;
+  padding: 24px 40px 40px;
+  background-color: #f4f5f6;
+  background-image:
+    /* диагональные линии */
+    linear-gradient(135deg, rgba(0, 0, 0, 0.03) 0%, rgba(0, 0, 0, 0.03) 2%, transparent 2%, transparent 8%),
+    linear-gradient(135deg, rgba(0, 0, 0, 0.02) 0%, rgba(0, 0, 0, 0.02) 2%, transparent 2%, transparent 10%),
+    /* точки слева снизу */
+    radial-gradient(circle, rgba(255, 255, 255, 0.9) 2px, transparent 3px);
+  background-size: 220px 220px, 260px 260px, 18px 18px;
+  background-position: 0 120px, 140px 260px, 40px 620px;
+}
+
+.program-details__header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.program-details__back {
+  border: 2px solid rgba(140, 140, 140, 0.6);
+  border-radius: 999px;
+}
+
+.program-details__title {
+  font-weight: 500;
+  color: #8a8a8a;
+  letter-spacing: 0.2px;
+}
+
+.program-details__top-check {
+  margin-left: auto;
+  color: #8a8a8a;
+}
+
+.program-details__content {
+  max-width: 820px;
+  margin-left: 120px;
+}
+
+.program-details__days-tabs {
+  display: flex;
+  gap: 18px;
+}
+
+.program-details__days-tab {
+  padding: 0 !important;
+  min-height: unset !important;
+  align-items: stretch !important;
+  max-width: none !important;
+  text-transform: none !important;
+  opacity: 1 !important;
+}
+
+.program-details__day-card {
+  width: 760px;
+  border-radius: 18px;
+  background: #e9e9e9;
+  padding: 18px 22px;
+}
+
+.program-details__day-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: #7b7b7b;
+  line-height: 1.15;
+  margin-bottom: 10px;
+}
+
+.program-details__day-dots {
+  display: flex;
+  gap: 10px;
+}
+
+.program-details__day-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 999px;
+}
+
+.program-details__exercises-list {
+  padding: 0 !important;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.program-details__exercise-item {
+  list-style: none;
+}
+
+.program-details__exercise-card {
+  width: 760px;
+  border-radius: 18px;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.program-details__exercise-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-width: 0;
+}
+
+.program-details__exercise-icon {
+  width: 56px;
+  height: 56px;
+  flex: 0 0 56px;
+  border-radius: 10px;
+}
+
+.program-details__exercise-icon--empty {
+  background: rgba(0, 0, 0, 0.06);
+}
+
+.program-details__exercise-name {
+  font-size: 20px;
+  font-weight: 500;
+  color: #8a8a8a;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.program-details__exercise-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.program-details__exercise-check {
+  color: rgba(0, 0, 0, 0.45);
+}
+
+.program-details__exercise-pill {
+  border: 2px solid rgba(138, 138, 138, 0.5);
+  border-radius: 14px;
+  padding: 6px 14px;
+}
+
+.program-details__exercise-pill-text {
+  font-size: 16px;
+  font-weight: 600;
+  color: #8a8a8a;
+}

@@ -14,9 +14,145 @@
     { "name": "MuscleGroups", "description": "Группы мышц" },
     { "name": "Exercises", "description": "Каталог упражнений" },
     { "name": "Workouts", "description": "Дневник тренировок" },
-    { "name": "Sets", "description": "Подходы" }
+    { "name": "Sets", "description": "Подходы" },
+    { "name": "Notes", "description": "Заметки пользователя" },
+    { "name": "Users", "description": "Профиль и настройки пользователя" },
+    { "name": "Programs", "description": "Программы тренировок" }
   ],
   "paths": {
+    "/programs/": {
+      "get": {
+        "summary": "Список программ тренировок",
+        "tags": ["Programs"],
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Успешно",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "count": { "type": "integer" },
+                    "next": { "type": "string", "nullable": true },
+                    "previous": { "type": "string", "nullable": true },
+                    "results": {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/ProgramList" }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Создать программу (admin)",
+        "tags": ["Programs"],
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ProgramWrite" }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Создано" },
+          "400": { "description": "Ошибка валидации" },
+          "403": { "description": "Нет прав" }
+        }
+      }
+    },
+    "/programs/{id}/": {
+      "get": {
+        "summary": "Детали программы с днями",
+        "tags": ["Programs"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [{ "$ref": "#/components/parameters/id" }],
+        "responses": {
+          "200": {
+            "description": "Успешно",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ProgramDetail" }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Обновить программу (admin)",
+        "tags": ["Programs"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [{ "$ref": "#/components/parameters/id" }],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ProgramWrite" }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Обновлено" },
+          "403": { "description": "Нет прав" }
+        }
+      },
+      "delete": {
+        "summary": "Удалить программу (admin)",
+        "tags": ["Programs"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [{ "$ref": "#/components/parameters/id" }],
+        "responses": {
+          "204": { "description": "Удалено" },
+          "403": { "description": "Нет прав" }
+        }
+      }
+    },
+    "/programs/{id}/days/{day_id}/": {
+      "get": {
+        "summary": "Упражнения дня программы",
+        "tags": ["Programs"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          { "$ref": "#/components/parameters/id" },
+          { "$ref": "#/components/parameters/day_id" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Успешно",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ProgramDay" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/programs/{id}/days/{day_id}/import/": {
+      "post": {
+        "summary": "Импортировать день в сегодняшнюю тренировку",
+        "tags": ["Programs"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          { "$ref": "#/components/parameters/id" },
+          { "$ref": "#/components/parameters/day_id" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Импортировано",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ImportResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
     "/exercises/muscle-groups/": {
       "get": {
         "summary": "Список всех групп мышц",
@@ -206,6 +342,45 @@
             }
           },
           "401": { "description": "Не авторизован" }
+        }
+      }
+    },
+    "/workouts/create/": {
+      "post": {
+        "summary": "Создать тренировку на дату",
+        "description": "Создаёт тренировку на указанную дату. Если тренировка уже существует — возвращает 409.",
+        "tags": ["Workouts"],
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "date": {
+                    "type": "string",
+                    "format": "date",
+                    "example": "2026-06-01"
+                  }
+                },
+                "required": ["date"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Создано",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Workout" }
+              }
+            }
+          },
+          "400": { "description": "Неверный формат даты" },
+          "401": { "description": "Не авторизован" },
+          "409": { "description": "Тренировка на эту дату уже существует" }
         }
       }
     },
@@ -443,6 +618,227 @@
           "404": { "description": "Не найден или чужой" }
         }
       }
+    },
+    "/notes/": {
+      "get": {
+        "summary": "Получить заметку (автосоздание если нет)",
+        "tags": ["Notes"],
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Успешно",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Note" }
+              }
+            }
+          },
+          "401": { "description": "Не авторизован" }
+        }
+      }
+    },
+    "/notes/{id}/": {
+      "put": {
+        "summary": "Обновить заметку",
+        "tags": ["Notes"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          { "$ref": "#/components/parameters/id" }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/NoteWrite" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Обновлено",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Note" }
+              }
+            }
+          },
+          "400": { "description": "Ошибка валидации" },
+          "401": { "description": "Не авторизован" }
+        }
+      },
+      "delete": {
+        "summary": "Удалить заметку",
+        "tags": ["Notes"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          { "$ref": "#/components/parameters/id" }
+        ],
+        "responses": {
+          "204": { "description": "Удалено" },
+          "401": { "description": "Не авторизован" }
+        }
+      }
+    },
+    "/users/register/": {
+      "post": {
+        "summary": "Регистрация",
+        "tags": ["Users"],
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/UserRegister" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Успешно",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/AuthResponse" }
+              }
+            }
+          },
+          "400": { "description": "Ошибка валидации" }
+        }
+      }
+    },
+    "/users/login/": {
+      "post": {
+        "summary": "Вход",
+        "tags": ["Users"],
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/UserLogin" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Успешно",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/AuthResponse" }
+              }
+            }
+          },
+          "401": { "description": "Неверный логин или пароль" }
+        }
+      }
+    },
+    "/users/logout/": {
+      "post": {
+        "summary": "Выход",
+        "tags": ["Users"],
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "refresh": { "type": "string" }
+                },
+                "required": ["refresh"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "205": { "description": "Успешный выход" },
+          "400": { "description": "Невалидный токен" }
+        }
+      }
+    },
+    "/users/profile/": {
+      "get": {
+        "summary": "Профиль пользователя",
+        "tags": ["Users"],
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Успешно",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/UserProfile" }
+              }
+            }
+          },
+          "401": { "description": "Не авторизован" }
+        }
+      },
+      "patch": {
+        "summary": "Обновить профиль",
+        "tags": ["Users"],
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/UserProfile" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Обновлено",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/UserProfile" }
+              }
+            }
+          },
+          "401": { "description": "Не авторизован" }
+        }
+      }
+    },
+    "/users/settings/": {
+      "get": {
+        "summary": "Настройки пользователя",
+        "tags": ["Users"],
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Успешно",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/UserSettings" }
+              }
+            }
+          },
+          "401": { "description": "Не авторизован" }
+        }
+      },
+      "patch": {
+        "summary": "Обновить настройки",
+        "tags": ["Users"],
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/UserSettings" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Обновлено",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/UserSettings" }
+              }
+            }
+          },
+          "401": { "description": "Не авторизован" }
+        }
+      }
     }
   },
   "components": {
@@ -477,9 +873,78 @@
         "in": "path",
         "required": true,
         "schema": { "type": "integer" }
+      },
+      "day_id": {
+        "name": "day_id",
+        "in": "path",
+        "required": true,
+        "schema": { "type": "integer" }
       }
     },
     "schemas": {
+      "ProgramList": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "name": { "type": "string" },
+          "difficulty": { "type": "string", "enum": ["beginner", "intermediate", "advanced"] },
+          "description": { "type": "string" },
+          "days_count": { "type": "integer" }
+        }
+      },
+      "ProgramDetail": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "name": { "type": "string" },
+          "difficulty": { "type": "string" },
+          "description": { "type": "string" },
+          "days": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/ProgramDay" }
+          }
+        }
+      },
+      "ProgramDay": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "name": { "type": "string" },
+          "day_number": { "type": "integer" },
+          "exercises": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/ProgramDayExercise" }
+          }
+        }
+      },
+      "ProgramDayExercise": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "exercise": { "type": "integer" },
+          "exercise_name": { "type": "string" },
+          "exercise_order": { "type": "integer" }
+        }
+      },
+      "ProgramWrite": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "difficulty": { "type": "string", "enum": ["beginner", "intermediate", "advanced"] },
+          "description": { "type": "string" }
+        },
+        "required": ["name", "difficulty"]
+      },
+      "ImportResponse": {
+        "type": "object",
+        "properties": {
+          "status": { "type": "string" },
+          "message": { "type": "string" },
+          "workout_id": { "type": "integer" },
+          "imported_exercises": { "type": "integer" },
+          "total_exercises": { "type": "integer" }
+        }
+      },
       "MuscleGroup": {
         "type": "object",
         "properties": {
@@ -497,7 +962,8 @@
           "name": { "type": "string", "maxLength": 200 },
           "description": { "type": "string", "default": "" },
           "image": { "type": "string", "format": "uri", "nullable": true, "readOnly": true }
-        }
+        },
+        "required": ["muscle_group", "muscle_group_name", "name"]
       },
       "ExerciseWrite": {
         "type": "object",
@@ -516,6 +982,17 @@
           "date": { "type": "string", "format": "date" },
           "exercise_count": { "type": "integer" }
         }
+      },
+      "WorkoutCreate": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string",
+            "format": "date",
+            "example": "2026-06-01"
+          }
+        },
+        "required": ["date"]
       },
       "Workout": {
         "type": "object",
@@ -561,6 +1038,78 @@
           "exercise_count": { "type": "integer" },
           "set_count": { "type": "integer" },
           "total_weight": { "type": "number" }
+        }
+      },
+      "Note": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "readOnly": true },
+          "content": { "type": "string" },
+          "updated_at": { "type": "string", "format": "date-time", "readOnly": true }
+        }
+      },
+      "NoteWrite": {
+        "type": "object",
+        "properties": {
+          "content": { "type": "string" }
+        },
+        "required": ["content"]
+      },
+      "UserRegister": {
+        "type": "object",
+        "properties": {
+          "username": { "type": "string" },
+          "email": { "type": "string", "format": "email" },
+          "password": { "type": "string", "writeOnly": true, "minLength": 6 }
+        },
+        "required": ["username", "password"]
+      },
+      "UserLogin": {
+        "type": "object",
+        "properties": {
+          "username": { "type": "string" },
+          "password": { "type": "string", "writeOnly": true }
+        },
+        "required": ["username", "password"]
+      },
+      "AuthResponse": {
+        "type": "object",
+        "properties": {
+          "message": { "type": "string" },
+          "user": { "$ref": "#/components/schemas/UserFull" },
+          "tokens": {
+            "type": "object",
+            "properties": {
+              "access": { "type": "string" },
+              "refresh": { "type": "string" }
+            }
+          }
+        }
+      },
+      "UserFull": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "readOnly": true },
+          "username": { "type": "string" },
+          "email": { "type": "string" },
+          "first_name": { "type": "string" },
+          "last_name": { "type": "string" },
+          "profile": { "$ref": "#/components/schemas/UserProfile" }
+        }
+      },
+      "UserProfile": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "readOnly": true },
+          "language": { "type": "string", "example": "en" },
+          "theme": { "type": "string", "example": "light" }
+        }
+      },
+      "UserSettings": {
+        "type": "object",
+        "properties": {
+          "language": { "type": "string", "example": "en" },
+          "theme": { "type": "string", "example": "light" }
         }
       }
     }

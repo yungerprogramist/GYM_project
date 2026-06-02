@@ -1,0 +1,31 @@
+{% extends "admin/base_site.html" %}
+{% block content %}
+<h1>Model Relationships</h1>
+<div style="display: flex; flex-wrap: wrap; gap: 20px; padding: 20px;">
+    {% for model_name, data in models_data.items %}
+    <div style="
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        width: 200px;
+        overflow: hidden;
+    ">
+        <div style="background: {{ data.color }}; padding: 10px; color: white; font-weight: bold; text-align: center;">
+            {{ model_name }}
+        </div>
+        <div style="padding: 10px;">
+            {% for field in data.fields %}
+            <div style="padding: 3px 0; border-bottom: 1px solid #eee; font-size: 13px;">
+                {{ field }}
+            </div>
+            {% endfor %}
+            {% if data.relations %}
+            <div style="margin-top: 8px; font-size: 12px; color: #666;">
+                → {% for rel in data.relations %}{{ rel }} {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
