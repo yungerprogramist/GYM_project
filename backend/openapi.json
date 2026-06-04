@@ -326,18 +326,30 @@
     },
     "/workouts/": {
       "get": {
-        "summary": "Список тренировок",
+        "summary": "Список тренировок с пагинацией и фильтром по дате",
         "tags": ["Workouts"],
         "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "date",
+            "in": "query",
+            "description": "Фильтр по дате (YYYY-MM-DD). Если указан — возвращает тренировку за эту дату.",
+            "schema": { "type": "string", "format": "date" },
+            "example": "2026-06-01"
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Номер страницы",
+            "schema": { "type": "integer", "default": 1 }
+          }
+        ],
         "responses": {
           "200": {
-            "description": "Успешно",
+            "description": "Успешно. Если передан ?date= — results содержит 0 или 1 тренировку.",
             "content": {
               "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": { "$ref": "#/components/schemas/WorkoutListItem" }
-                }
+                "schema": { "$ref": "#/components/schemas/PaginatedWorkoutList" }
               }
             }
           },
@@ -355,17 +367,7 @@
           "required": true,
           "content": {
             "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "date": {
-                    "type": "string",
-                    "format": "date",
-                    "example": "2026-06-01"
-                  }
-                },
-                "required": ["date"]
-              }
+              "schema": { "$ref": "#/components/schemas/WorkoutCreate" }
             }
           }
         },
@@ -381,6 +383,27 @@
           "400": { "description": "Неверный формат даты" },
           "401": { "description": "Не авторизован" },
           "409": { "description": "Тренировка на эту дату уже существует" }
+        }
+      }
+    },
+    "/workouts/calendar-dates/": {
+      "get": {
+        "summary": "Даты тренировок для календаря",
+        "tags": ["Workouts"],
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Массив дат",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "type": "string", "format": "date" }
+                }
+              }
+            }
+          },
+          "401": { "description": "Не авторизован" }
         }
       }
     },
@@ -431,34 +454,6 @@
               }
             }
           }
-        }
-      }
-    },
-    "/workouts/date/{date}/": {
-      "get": {
-        "summary": "Тренировка по дате",
-        "tags": ["Workouts"],
-        "security": [{ "bearerAuth": [] }],
-        "parameters": [
-          {
-            "name": "date",
-            "in": "path",
-            "required": true,
-            "schema": { "type": "string", "format": "date" },
-            "example": "2026-05-21"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Успешно",
-            "content": {
-              "application/json": {
-                "schema": { "$ref": "#/components/schemas/Workout" }
-              }
-            }
-          },
-          "400": { "description": "Неверный формат даты" },
-          "404": { "description": "Тренировка не найдена" }
         }
       }
     },
@@ -570,7 +565,7 @@
         }
       }
     },
-    "/sets/{set_id}/": {
+    "/workouts/sets/{set_id}/": {
       "put": {
         "summary": "Обновить подход",
         "tags": ["Sets"],
@@ -983,6 +978,18 @@
           "exercise_count": { "type": "integer" }
         }
       },
+      "PaginatedWorkoutList": {
+        "type": "object",
+        "properties": {
+          "count": { "type": "integer", "description": "Общее количество тренировок" },
+          "next": { "type": "string", "nullable": true, "description": "Ссылка на следующую страницу" },
+          "previous": { "type": "string", "nullable": true, "description": "Ссылка на предыдущую страницу" },
+          "results": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/WorkoutListItem" }
+          }
+        }
+      },
       "WorkoutCreate": {
         "type": "object",
         "properties": {
@@ -1005,7 +1012,7 @@
           },
           "exercise_count": { "type": "integer" },
           "set_count": { "type": "integer" },
-          "total_weight": { "type": "number" }
+          "total_weight": { "type": "number", "description": "Общий тоннаж (вес × повторения)" }
         }
       },
       "WorkoutExercise": {
@@ -1037,7 +1044,7 @@
           "date": { "type": "string", "format": "date" },
           "exercise_count": { "type": "integer" },
           "set_count": { "type": "integer" },
-          "total_weight": { "type": "number" }
+          "total_weight": { "type": "number", "description": "Общий тоннаж (вес × повторения)" }
         }
       },
       "Note": {

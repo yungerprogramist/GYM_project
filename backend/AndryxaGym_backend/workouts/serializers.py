@@ -2,6 +2,7 @@ from rest_framework import serializers
 from .models import Workout, WorkoutExercise, Set
 from exercises.models import Exercise
 from django.db import models
+from django.db.models import Sum, F
 
 class SetSerializer(serializers.ModelSerializer):
     class Meta:
@@ -58,7 +59,7 @@ class WorkoutSerializer(serializers.ModelSerializer):
     def get_total_weight(self, obj):
         return Set.objects.filter(
             workout_exercise__workout=obj
-        ).aggregate(total=models.Sum('weight'))['total'] or 0
+        ).aggregate(total=models.Sum(F('weight')*F('reps')))['total'] or 0
 
 
 class WorkoutListSerializer(serializers.ModelSerializer):
