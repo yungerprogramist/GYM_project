@@ -5,6 +5,8 @@ interface DateState {
   // selectedDate и selectedDateISO синхронизированны 
   readonly selectedDate: Date;
   readonly selectedDateISO: string;
+  readonly showCalendar: boolean;
+  setShowCalendar: (value: boolean) => void;
   // методы одикаковые за исключением входных данных
   setSelectedDate: (date: Date) => void;
   setSelectedDateISO: (date: string) => void;
@@ -18,6 +20,8 @@ export const useDateStore = create<DateState>((set) => {
   return {
     selectedDate: now,
     selectedDateISO: formatDate(now),
+    showCalendar: false,
+    setShowCalendar: (value) => set({ showCalendar: value }),
 
     // Принимаем Date -> вычисляем строку
     setSelectedDate: (date: Date) => set({
