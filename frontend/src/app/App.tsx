@@ -34,7 +34,7 @@ const LogoutRoute = () => {
 // Layout для защищённых страниц — проверка авторизации + Outlet
 const ProtectedLayout = () => {
   const isAuthenticated = useAuthStore(state => state.isAuth);
-
+  
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
@@ -66,7 +66,7 @@ function App() {
               element={
                 isAuthenticated ? 
                 <Navigate to="/my-account" replace /> : 
-                <LoginPage onLoginSuccess={() => {}} />
+                <LoginPage />
               } 
             />
 
