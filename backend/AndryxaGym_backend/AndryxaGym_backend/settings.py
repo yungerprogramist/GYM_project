@@ -24,9 +24,9 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
-    'drf_spectacular',
     'import_export',
     'django_extensions',
+    'django_filters',
 
     'notes',
     'users',
@@ -34,6 +34,7 @@ INSTALLED_APPS = [
     'measurements',
     'workouts',
     'programs.apps.ProgramsConfig',
+    'apps.calendar',
 ]
 
 AUTH_USER_MODEL = 'users.User'
@@ -103,7 +104,6 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 REST_FRAMEWORK = {
-    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 20,
     'DEFAULT_FILTER_BACKENDS': [
@@ -122,12 +122,6 @@ REST_FRAMEWORK = {
         'rest_framework.renderers.JSONRenderer',
         'rest_framework.renderers.BrowsableAPIRenderer',
     ],
-}
-
-SPECTACULAR_SETTINGS = {
-    'TITLE': 'AndryxaGym API',
-    'DESCRIPTION': 'API для сайта тренировок',
-    'VERSION': '1.0.0',
 }
 
 LOGGING = {

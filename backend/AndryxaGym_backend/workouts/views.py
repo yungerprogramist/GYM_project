@@ -1,6 +1,7 @@
 from datetime import date, datetime
 
 from django.db import models
+from django.db.models import F
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 
@@ -33,18 +34,29 @@ class WorkoutViewSet(
     permission_classes = [IsAuthenticated, IsWorkoutOwner]
 
     def get_queryset(self):
-        return Workout.objects.filter(
-            user=self.request.user
-        ).prefetch_related(
+        queryset = Workout.objects.filter(user=self.request.user)
+
+        # Фильтр по дате: ?date=YYYY-MM-DD
+        date_str = self.request.query_params.get('date')
+        if date_str:
+            try:
+                target_date = datetime.strptime(date_str, '%Y-%m-%d').date()
+                queryset = queryset.filter(date=target_date)
+            except (ValueError, TypeError):
+                pass  # игнорируем неверный формат
+
+        return queryset.prefetch_related(
             'exercises__sets',
             'exercises__exercise__muscle_group'
         ).select_related('user')
 
     def get_serializer_class(self):
         if self.action == 'list':
+            if self.request.query_params.get('date'):
+                return WorkoutSerializer  # полные данные для одной даты
             return WorkoutListSerializer
         if self.action == 'stats':
-            return WorkoutStatsSerializer
+            return WorkoutStatsSerializer  
         return WorkoutSerializer
 
     def get_workout(self, workout_id):
@@ -55,7 +67,7 @@ class WorkoutViewSet(
 
     @action(detail=False, methods=['get'], url_path='today')
     def today(self, request):
-        """GET /api/workouts/today/"""
+        """GET /api/v1/workouts/today/"""
         today = timezone.localdate()
         workout, created = Workout.objects.get_or_create(
             user=request.user,
@@ -64,26 +76,45 @@ class WorkoutViewSet(
         serializer = WorkoutSerializer(workout)
         return Response(serializer.data)
 
-    @action(detail=False, methods=['get'], url_path='date/(?P<date_str>[0-9]{4}-[0-9]{2}-[0-9]{2})')
-    def by_date(self, request, date_str=None):
-        """GET /api/workouts/date/YYYY-MM-DD/"""
+    @action(detail=False, methods=['get'], url_path='calendar-dates')
+    def calendar_dates(self, request):
+        """GET /api/v1/workouts/calendar-dates/"""
+        dates = Workout.objects.filter(
+            user=request.user
+        ).values_list('date', flat=True).order_by('date')
+        return Response(list(dates))
+
+    @action(detail=False, methods=['post'], url_path='create')
+    def create_workout(self, request):
+        """POST /api/v1/workouts/create"""
+        date_str = request.data.get('date')
+        
+
+        if not date_str:
+            return Response({"error": "Дата обязательна"}, status=400)
+    
         try:
-            target_date = datetime.strptime(date_str, '%Y-%m-%d').date()
-        except ValueError:
+            date = datetime.strptime(date_str, '%Y-%m-%d').date()
+        except (ValueError, TypeError):
+            return Response({"error": "Неверный формат даты. Используйте YYYY-MM-DD"}, status=400)
+    
+        workout, created = Workout.objects.get_or_create(
+            user=request.user,
+            date=date,
+        )
+
+        if not created:
             return Response(
-                {"error": "Неверный формат даты. Используйте YYYY-MM-DD"},
-                status=status.HTTP_400_BAD_REQUEST
+                {"error": "Тренировка на эту дату уже существует"},
+                status=status.HTTP_409_CONFLICT
             )
 
-        workout = get_object_or_404(
-            Workout.objects.filter(user=request.user, date=target_date)
-        )
         serializer = WorkoutSerializer(workout)
-        return Response(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     @action(detail=True, methods=['post'], url_path='exercises')
     def add_exercise(self, request, pk=None):
-        """POST /api/workouts/{id}/exercises/"""
+        """POST /api/v1/workouts/{id}/exercises/"""
         workout = self.get_workout(pk)
 
         serializer = AddExerciseSerializer(data=request.data)
@@ -121,7 +152,7 @@ class WorkoutViewSet(
 
     @action(detail=True, methods=['delete'], url_path='exercises/(?P<exercise_id>[0-9]+)')
     def remove_exercise(self, request, pk=None, exercise_id=None):
-        """DELETE /api/workouts/{id}/exercises/{exercise_id}/"""
+        """DELETE /api/v1/workouts/{id}/exercises/{exercise_id}/"""
         workout = self.get_workout(pk)
         workout_exercise = get_object_or_404(
             WorkoutExercise,
@@ -133,7 +164,7 @@ class WorkoutViewSet(
 
     @action(detail=True, methods=['post'], url_path='exercises/(?P<exercise_id>[0-9]+)/sets')
     def add_set(self, request, pk=None, exercise_id=None):
-        """POST /api/workouts/{id}/exercises/{exercise_id}/sets/"""
+        """POST /api/v1/workouts/{id}/exercises/{exercise_id}/sets/"""
         workout = self.get_workout(pk)
         workout_exercise = get_object_or_404(
             WorkoutExercise.objects.select_related('workout'),
@@ -165,7 +196,7 @@ class WorkoutViewSet(
 
     @action(detail=True, methods=['get'], url_path='stats')
     def stats(self, request, pk=None):
-        """GET /api/workouts/{id}/stats/"""
+        """GET /api/v1/workouts/{id}/stats/"""
         workout = self.get_workout(pk)
 
         sets_queryset = Set.objects.filter(
@@ -177,7 +208,7 @@ class WorkoutViewSet(
             'exercise_count': workout.exercises.count(),
             'set_count': sets_queryset.count(),
             'total_weight': sets_queryset.aggregate(
-                total=models.Sum('weight')
+                total=models.Sum(F('weight')*F('reps'))
             )['total'] or 0,
         }
 

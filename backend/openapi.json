@@ -16,9 +16,143 @@
     { "name": "Workouts", "description": "Дневник тренировок" },
     { "name": "Sets", "description": "Подходы" },
     { "name": "Notes", "description": "Заметки пользователя" },
-    { "name": "Users", "description": "Профиль и настройки пользователя" }
+    { "name": "Users", "description": "Профиль и настройки пользователя" },
+    { "name": "Programs", "description": "Программы тренировок" }
   ],
   "paths": {
+    "/programs/": {
+      "get": {
+        "summary": "Список программ тренировок",
+        "tags": ["Programs"],
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Успешно",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "count": { "type": "integer" },
+                    "next": { "type": "string", "nullable": true },
+                    "previous": { "type": "string", "nullable": true },
+                    "results": {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/ProgramList" }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Создать программу (admin)",
+        "tags": ["Programs"],
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ProgramWrite" }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Создано" },
+          "400": { "description": "Ошибка валидации" },
+          "403": { "description": "Нет прав" }
+        }
+      }
+    },
+    "/programs/{id}/": {
+      "get": {
+        "summary": "Детали программы с днями",
+        "tags": ["Programs"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [{ "$ref": "#/components/parameters/id" }],
+        "responses": {
+          "200": {
+            "description": "Успешно",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ProgramDetail" }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Обновить программу (admin)",
+        "tags": ["Programs"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [{ "$ref": "#/components/parameters/id" }],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ProgramWrite" }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Обновлено" },
+          "403": { "description": "Нет прав" }
+        }
+      },
+      "delete": {
+        "summary": "Удалить программу (admin)",
+        "tags": ["Programs"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [{ "$ref": "#/components/parameters/id" }],
+        "responses": {
+          "204": { "description": "Удалено" },
+          "403": { "description": "Нет прав" }
+        }
+      }
+    },
+    "/programs/{id}/days/{day_id}/": {
+      "get": {
+        "summary": "Упражнения дня программы",
+        "tags": ["Programs"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          { "$ref": "#/components/parameters/id" },
+          { "$ref": "#/components/parameters/day_id" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Успешно",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ProgramDay" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/programs/{id}/days/{day_id}/import/": {
+      "post": {
+        "summary": "Импортировать день в сегодняшнюю тренировку",
+        "tags": ["Programs"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          { "$ref": "#/components/parameters/id" },
+          { "$ref": "#/components/parameters/day_id" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Импортировано",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ImportResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
     "/exercises/muscle-groups/": {
       "get": {
         "summary": "Список всех групп мышц",
@@ -192,17 +326,79 @@
     },
     "/workouts/": {
       "get": {
-        "summary": "Список тренировок",
+        "summary": "Список тренировок с пагинацией и фильтром по дате",
+        "tags": ["Workouts"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "date",
+            "in": "query",
+            "description": "Фильтр по дате (YYYY-MM-DD). Если указан — возвращает тренировку за эту дату.",
+            "schema": { "type": "string", "format": "date" },
+            "example": "2026-06-01"
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Номер страницы",
+            "schema": { "type": "integer", "default": 1 }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Успешно. Если передан ?date= — results содержит 0 или 1 тренировку.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/PaginatedWorkoutList" }
+              }
+            }
+          },
+          "401": { "description": "Не авторизован" }
+        }
+      }
+    },
+    "/workouts/create/": {
+      "post": {
+        "summary": "Создать тренировку на дату",
+        "description": "Создаёт тренировку на указанную дату. Если тренировка уже существует — возвращает 409.",
+        "tags": ["Workouts"],
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/WorkoutCreate" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Создано",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Workout" }
+              }
+            }
+          },
+          "400": { "description": "Неверный формат даты" },
+          "401": { "description": "Не авторизован" },
+          "409": { "description": "Тренировка на эту дату уже существует" }
+        }
+      }
+    },
+    "/workouts/calendar-dates/": {
+      "get": {
+        "summary": "Даты тренировок для календаря",
         "tags": ["Workouts"],
         "security": [{ "bearerAuth": [] }],
         "responses": {
           "200": {
-            "description": "Успешно",
+            "description": "Массив дат",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "array",
-                  "items": { "$ref": "#/components/schemas/WorkoutListItem" }
+                  "items": { "type": "string", "format": "date" }
                 }
               }
             }
@@ -258,34 +454,6 @@
               }
             }
           }
-        }
-      }
-    },
-    "/workouts/date/{date}/": {
-      "get": {
-        "summary": "Тренировка по дате",
-        "tags": ["Workouts"],
-        "security": [{ "bearerAuth": [] }],
-        "parameters": [
-          {
-            "name": "date",
-            "in": "path",
-            "required": true,
-            "schema": { "type": "string", "format": "date" },
-            "example": "2026-05-21"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Успешно",
-            "content": {
-              "application/json": {
-                "schema": { "$ref": "#/components/schemas/Workout" }
-              }
-            }
-          },
-          "400": { "description": "Неверный формат даты" },
-          "404": { "description": "Тренировка не найдена" }
         }
       }
     },
@@ -397,7 +565,7 @@
         }
       }
     },
-    "/sets/{set_id}/": {
+    "/workouts/sets/{set_id}/": {
       "put": {
         "summary": "Обновить подход",
         "tags": ["Sets"],
@@ -700,9 +868,78 @@
         "in": "path",
         "required": true,
         "schema": { "type": "integer" }
+      },
+      "day_id": {
+        "name": "day_id",
+        "in": "path",
+        "required": true,
+        "schema": { "type": "integer" }
       }
     },
     "schemas": {
+      "ProgramList": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "name": { "type": "string" },
+          "difficulty": { "type": "string", "enum": ["beginner", "intermediate", "advanced"] },
+          "description": { "type": "string" },
+          "days_count": { "type": "integer" }
+        }
+      },
+      "ProgramDetail": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "name": { "type": "string" },
+          "difficulty": { "type": "string" },
+          "description": { "type": "string" },
+          "days": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/ProgramDay" }
+          }
+        }
+      },
+      "ProgramDay": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "name": { "type": "string" },
+          "day_number": { "type": "integer" },
+          "exercises": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/ProgramDayExercise" }
+          }
+        }
+      },
+      "ProgramDayExercise": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "exercise": { "type": "integer" },
+          "exercise_name": { "type": "string" },
+          "exercise_order": { "type": "integer" }
+        }
+      },
+      "ProgramWrite": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "difficulty": { "type": "string", "enum": ["beginner", "intermediate", "advanced"] },
+          "description": { "type": "string" }
+        },
+        "required": ["name", "difficulty"]
+      },
+      "ImportResponse": {
+        "type": "object",
+        "properties": {
+          "status": { "type": "string" },
+          "message": { "type": "string" },
+          "workout_id": { "type": "integer" },
+          "imported_exercises": { "type": "integer" },
+          "total_exercises": { "type": "integer" }
+        }
+      },
       "MuscleGroup": {
         "type": "object",
         "properties": {
@@ -720,7 +957,8 @@
           "name": { "type": "string", "maxLength": 200 },
           "description": { "type": "string", "default": "" },
           "image": { "type": "string", "format": "uri", "nullable": true, "readOnly": true }
-        }
+        },
+        "required": ["muscle_group", "muscle_group_name", "name"]
       },
       "ExerciseWrite": {
         "type": "object",
@@ -740,6 +978,29 @@
           "exercise_count": { "type": "integer" }
         }
       },
+      "PaginatedWorkoutList": {
+        "type": "object",
+        "properties": {
+          "count": { "type": "integer", "description": "Общее количество тренировок" },
+          "next": { "type": "string", "nullable": true, "description": "Ссылка на следующую страницу" },
+          "previous": { "type": "string", "nullable": true, "description": "Ссылка на предыдущую страницу" },
+          "results": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/WorkoutListItem" }
+          }
+        }
+      },
+      "WorkoutCreate": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string",
+            "format": "date",
+            "example": "2026-06-01"
+          }
+        },
+        "required": ["date"]
+      },
       "Workout": {
         "type": "object",
         "properties": {
@@ -751,7 +1012,7 @@
           },
           "exercise_count": { "type": "integer" },
           "set_count": { "type": "integer" },
-          "total_weight": { "type": "number" }
+          "total_weight": { "type": "number", "description": "Общий тоннаж (вес × повторения)" }
         }
       },
       "WorkoutExercise": {
@@ -783,7 +1044,7 @@
           "date": { "type": "string", "format": "date" },
           "exercise_count": { "type": "integer" },
           "set_count": { "type": "integer" },
-          "total_weight": { "type": "number" }
+          "total_weight": { "type": "number", "description": "Общий тоннаж (вес × повторения)" }
         }
       },
       "Note": {
