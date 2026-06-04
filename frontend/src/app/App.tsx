@@ -15,9 +15,6 @@ const NotebookPage = () => <h2>Блокнот</h2>;
 const SettingsPage = () => <h2>Настройки</h2>;
 const ActionManagerPage = () => <h2>Управление действиями</h2>;
 
-// ВАЖНО: Выносим wrapper наружу, чтобы он не пересоздавался при каждом рендере App
-const LoginPageWrapper = () => <LoginPage onLoginSuccess={() => {}} />;
-
 // Компонент для обработки logout
 const LogoutRoute = () => {
   const navigate = useNavigate();
@@ -94,7 +91,7 @@ function App() {
             />
             
             <Route path="*" element={
-              // по идее сюра нужно добавить страницу: не найдена 
+              // по идее сюра нужно добавить страницу: 404 стриница не найдена 
               <Navigate to="/" replace />
             } />
           </Routes>
