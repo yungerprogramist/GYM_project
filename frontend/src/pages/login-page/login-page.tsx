@@ -13,13 +13,14 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
   // const [loading, setLoading] = useState(false);
 
   const login = useAuthStore((state) => state.login);
-  const loading = useAuthStore((state) => state.isLoading);
+  const loading = useAuthStore((state) => state.isLoggingIn);
 
   const handleLogin = async () => {
     const result = await login(username, password);
     switch (result) {
       case "successful":
         // router.push('/dashboard');
+        setError(null);
         onLoginSuccess();
         break;
       case "user not found":

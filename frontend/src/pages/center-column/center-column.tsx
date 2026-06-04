@@ -1,9 +1,15 @@
 import './center-column.scss';
+import { ReactNode } from 'react';
 
-const CenterColumn = ({ component: Component, componentProps }: any) => {
+interface CenterColumnProps {
+  children: ReactNode;
+}
+
+
+const CenterColumn = ({ children }: CenterColumnProps) => {
   return (
     <main className="center-column">
-      <Component {...componentProps} />
+      {children}
     </main>
   );
 };

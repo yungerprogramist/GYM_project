@@ -4,175 +4,172 @@ import { loginUser } from '../../shared/api/endpoints/login';
 import { refreshTokens } from '../../shared/api/endpoints/refresh';
 import { logoutUser } from '../../shared/api/endpoints/logout';
 
-
-// пример:
-// const login = useAuthStore((state) => state.login);
-// const isLoading = useAuthStore((state) => state.isLoading);
-
-// const handleSubmit = async () => {
-//   const result = await login(username, password);
-  
-//   switch (result) {
-//     case "successful":
-//       router.push('/dashboard');
-//       break;
-//     case "user not found":
-//       setError("Такого пользователя нет");
-//       break;
-//     case "incorrect password":
-//       setError("Неверный пароль");
-//       break;
-//     case "server error":
-//       setError("Проблема с сервером, попробуйте позже");
-//       break;
-//   }
-// };
-
-
 interface AuthState {
-  readonly isLoading: boolean;
+  readonly isAppLoading: boolean;
+  readonly isLoggingIn: boolean;
+  readonly isRegistering: boolean;
+  readonly isLoggingOut: boolean;
   readonly isAuth: boolean;
   readonly _accessToken: string | null;
   
   registration: (username: string, email: string, password: string) => Promise<
-
     | "successful" 
     | "username is taken" 
     | "email is taken"
-
-    | "incorrect password" // скорее всего короче 6 символов
+    | "incorrect password" 
     | "server error"
   >;
   login: (username: string, password: string) => Promise<
-
     | "successful" 
     | "user not found" 
     | "incorrect password" 
     | "incorrect login or password"
-
     | "server error"
   >;
   logout: () => Promise<void>;
   _refreshToken: () => Promise<
     | "successful"
     | "refresh token outdated"
-
     | "server error"
   >;
-  // Метод для начальной загрузки приложения (проверка авторизации при F5)
   _initAuth: () => Promise<void>;
 }
 
 const REFRESH_TOKEN_KEY = 'rt';
 
 const useAuthStore = create<AuthState>((set, get) => ({
-  isLoading: true, // Изначально true, пока идет первая проверка initAuth
+  isAppLoading: false,
+  isLoggingIn: false,
+  isLoggingOut: false,
+  isRegistering: false,
   isAuth: false,
   _accessToken: null,
 
   registration: async (username, email, password) => {
-    // Включаем лоадер только если не авторизованы
-    if (!get().isAuth) set({ isLoading: true });
+    set({ isRegistering: true });
+    try {
+      const result = await registerUser({ username, email, password });
 
-    const result = await registerUser({ username, email, password });
+      if (result.status === 201) {
+        localStorage.setItem(REFRESH_TOKEN_KEY, result.data.tokens.refresh);
+        set({ 
+          _accessToken: result.data.tokens.access, 
+          isAuth: true
+        });
+        return "successful";
+      }
 
-    if (result.status === 201) {
-      localStorage.setItem(REFRESH_TOKEN_KEY, result.data.tokens.refresh);
-      set({ 
-        _accessToken: result.data.tokens.access, 
-        isAuth: true, 
-        isLoading: false 
-      });
-      return "successful";
+      if (result.status === 400) {
+        if (result.data.username?.some((msg: string) => msg.includes('taken') || msg.includes('уже существует'))) {
+          return "username is taken";
+        }
+        if (result.data.email?.some((msg: string) => msg.includes('taken') || msg.includes('уже существует'))) {
+          return "email is taken";
+        }
+        if (result.data.password) {
+          return "incorrect password";
+        }
+      }
+
+      return "server error";
+    } catch (error) {
+      console.error('Registration error:', error);
+      return "server error";
+    } finally {
+      set({ isRegistering: false });
     }
-
-    set({ isLoading: false });
-
-    if (result.status === 400) {
-      if (result.data.username?.some(msg => msg.includes('taken') || msg.includes('уже существует'))) {
-        return "username is taken";
-      }
-      if (result.data.email?.some(msg => msg.includes('taken') || msg.includes('уже существует'))) {
-        return "email is taken";
-      }
-      if (result.data.password) {
-        return "incorrect password";
-      }
-    }
-
-    return "server error";
   },
 
   login: async (username, password) => {
-    if (!get().isAuth) set({ isLoading: true });
+    set({ isLoggingIn: true });
+    try {
+      const result = await loginUser({ username, password });
 
-    const result = await loginUser({ username, password });
+      if (result.status === 200) {
+        localStorage.setItem(REFRESH_TOKEN_KEY, result.data.tokens.refresh);
+        set({ 
+          _accessToken: result.data.tokens.access, 
+          isAuth: true,
+        });
+        return "successful";
+      }
 
-    if (result.status === 200) {
-      localStorage.setItem(REFRESH_TOKEN_KEY, result.data.tokens.refresh);
-      set({ 
-        _accessToken: result.data.tokens.access, 
-        isAuth: true, 
-        isLoading: false 
-      });
-      return "successful";
+      if (result.status === 401) {
+        return "incorrect login or password";
+      }
+
+      return "server error";
+    } catch (error) {
+      console.error('Login error:', error);
+      return "server error";
+    } finally {
+      set({ isLoggingIn: false });
     }
-
-    set({ isLoading: false });
-
-    if (result.status === 401) {
-      // Если бэкенд возвращает ошибку, можно смотреть на текст или код.
-      // Предположим, если пользователя нет или пароль неверный:
-      // if (result.data.error.includes('найден')) return "user not found";
-      return "incorrect login or password";
-    }
-
-    return "server error";
   },
 
   logout: async () => {
-    const rt = localStorage.getItem(REFRESH_TOKEN_KEY);
-    
-    if (rt) {
-      // logoutUser сам сходит через authClient
-      await logoutUser({ refresh: rt });
+    set({ isLoggingOut: true });
+    try {
+      const rt = localStorage.getItem(REFRESH_TOKEN_KEY);
+      if (rt) {
+        await logoutUser({ refresh: rt });
+      }
+    } catch (error) {
+      console.error('Logout error:', error);
+    } finally {
+      localStorage.removeItem(REFRESH_TOKEN_KEY);
+      set({ _accessToken: null, isAuth: false, isLoggingOut: false });
     }
-
-    localStorage.removeItem(REFRESH_TOKEN_KEY);
-    set({ _accessToken: null, isAuth: false, isLoading: false });
   },
 
   _refreshToken: async () => {
-    const rt = localStorage.getItem(REFRESH_TOKEN_KEY);
+      const rt = localStorage.getItem(REFRESH_TOKEN_KEY);
 
-    if (!rt) {
-      set({ isAuth: false, isLoading: false, _accessToken: null });
-      return "refresh token outdated";
-    }
+      if (!rt) {
+        console.log('❌ [Refresh] No refresh token found');
+        set({ isAuth: false, _accessToken: null });
+        return "refresh token outdated";
+      }
+      console.log('🔄 [Refresh] Token exists:', rt);
 
-    const result = await refreshTokens({ refresh: rt });
+      console.log('🔄 [Refresh] Calling API...');
+      const result = await refreshTokens({ refresh: rt });
+      console.log('🔄 [Refresh] Response status:', result.status);
 
-    if (result.status === 200) {
-      set({ _accessToken: result.data.access, isAuth: true, isLoading: false });
-      return "successful";
-    }
+      switch (result.status) {
+        case 200:
+          console.log('✅ [Refresh] Success, new access token received');
+          set({ _accessToken: result.data.access, isAuth: true });
+          return "successful";
 
-    // Если 401 (токен протух) или 500 (упал сервер)
-    localStorage.removeItem(REFRESH_TOKEN_KEY);
-    set({ _accessToken: null, isAuth: false, isLoading: false });
+        case 401:
+          console.log('❌ [Refresh] Token expired/invalid:', result.data.detail);
+          localStorage.removeItem(REFRESH_TOKEN_KEY);
+          set({ _accessToken: null, isAuth: false });
+          return "refresh token outdated";
 
-    if (result.status === 401) return "refresh token outdated";
-    return "server error";
+        case 500:
+          console.error('❌ [Refresh] Server error:', result.data.message);
+          localStorage.removeItem(REFRESH_TOKEN_KEY);
+          set({ _accessToken: null, isAuth: false });
+          return "server error";
+      }
   },
 
   _initAuth: async () => {
-    const rt = localStorage.getItem(REFRESH_TOKEN_KEY);
-    if (!rt) {
-      set({ isLoading: false, isAuth: false });
-      return;
+    set({ isAppLoading: true });
+    try {
+      const rt = localStorage.getItem(REFRESH_TOKEN_KEY);
+      if (!rt) {
+        set({ isAuth: false });
+        return;
+      }
+      await get()._refreshToken();
+    } catch (error) {
+      console.error('Init auth error:', error);
+    } finally {
+      set({ isAppLoading: false });
     }
-    // Пробуем тихо обновить токен при старте страницы
-    await get()._refreshToken();
   }
 }));
 

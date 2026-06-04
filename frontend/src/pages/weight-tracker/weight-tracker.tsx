@@ -57,6 +57,7 @@ const WeightTracker: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [period, setPeriod] = useState<'week' | 'month' | 'year'>('year');
   const selectedDate = useDateStore(state => state.selectedDateISO);
+  const setShowCalendar = useDateStore((state) => state.setShowCalendar); // для включения календаря
 
   // 1. Получение списка записей веса (с пагинацией)
   const fetchWeightRecords = async () => {
@@ -180,7 +181,10 @@ const WeightTracker: React.FC = () => {
     };
     
     loadAllData();
-  }, [period]);
+
+    setShowCalendar(true);
+    return () => setShowCalendar(false); // Важно! Сброс при уходе со страницы
+  }, [period, setShowCalendar]);
 
   // Открытие меню троеточия
   const handleMenuOpen = (event: React.MouseEvent<HTMLElement>, recordId: number) => {
