@@ -28,9 +28,6 @@ INSTALLED_APPS = [
     'django_extensions',
     'django_filters',
 
-    'drf_spectacular',
-    'drf_spectacular_sidecar',
-
     'notes',
     'users',
     'exercises',
@@ -107,7 +104,6 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 REST_FRAMEWORK = {
-    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 20,
     'DEFAULT_FILTER_BACKENDS': [
@@ -152,13 +148,4 @@ LOGGING = {
             'propagate': True,
         },
     },
-}
-
-SPECTACULAR_SETTINGS = {
-    'TITLE': 'Gym Project API',
-    'SWAGGER_UI_DIST': 'SIDECAR',
-    'SWAGGER_UI_FAVICON_HREF': 'SIDECAR',
-    'REDOC_DIST': 'SIDECAR',
-    'DEFAULT_AUTO_SCHEMA': 'drf_spectacular.openapi.AutoSchema',
-    'COMPONENT_SPLIT_REQUEST': True,  # добавь эту строку
 }

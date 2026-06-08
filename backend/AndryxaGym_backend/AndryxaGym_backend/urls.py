@@ -7,7 +7,6 @@ from django.urls import path, include
 from django.conf.urls.static import static
 from rest_framework_simplejwt.views import TokenRefreshView
 from django.conf import settings
-from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 from .admin_views import model_diagram
 
 from apps.calendar.views import (
@@ -25,6 +24,7 @@ urlpatterns = [
     path('api/measurements/', include('measurements.urls')),
     path('api/v1/measurements/', include('measurements.urls')),
     path('api/programs/', include('programs.urls')),
+    path('api/v1/programs/', include('programs.urls')),
     path('api/v1/workouts/', include('workouts.urls')),
     path('api/users/', include('users.urls')),
     path('api/users/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
@@ -34,6 +34,4 @@ urlpatterns = [
     path('api/statistics/period/', StatisticsPeriodView.as_view()),
     path('api/exercises/recent/', RecentExerciseView.as_view()),
     path('api/exercises/recent/update/', RecentExerciseUpdateView.as_view()),
-    path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
-    path('api/docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
