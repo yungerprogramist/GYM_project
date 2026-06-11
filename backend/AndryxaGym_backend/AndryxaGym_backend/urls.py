@@ -22,7 +22,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('admin/model-diagram/', model_diagram, name='model-diagram'),
     path('api/', include('notes.urls')),
-    path('api/measurements/', include('measurements.urls')),
     path('api/v1/measurements/', include('measurements.urls')),
     path('api/programs/', include('programs.urls')),
     path('api/v1/workouts/', include('workouts.urls')),
