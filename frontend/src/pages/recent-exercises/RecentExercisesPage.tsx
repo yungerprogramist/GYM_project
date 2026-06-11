@@ -2,16 +2,17 @@ import React, { useState, useEffect } from 'react';
 import useAuthStore from '../../features/auth';
 import './recent-exercises.scss';
 
-interface RecentExercise {
+interface Exercise {
   id: number;
-  exercise_id: number;
-  exercise_name: string;
-  last_used: string;
-  use_count: number;
+  muscle_group: number;
+  muscle_group_name: string;
+  name: string;
+  description: string;
+  image: string | null;
 }
 
-const RecentExercisesPage: React.FC = () => {
-  const [recentExercises, setRecentExercises] = useState<RecentExercise[]>([]);
+const ExercisesPage: React.FC = () => {
+  const [exercises, setExercises] = useState<Exercise[]>([]);
   const [showSnackbar, setShowSnackbar] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [loading, setLoading] = useState(true);
@@ -21,16 +22,16 @@ const RecentExercisesPage: React.FC = () => {
 
   useEffect(() => {
     if (isAuth && accessToken) {
-      fetchRecentExercises();
+      fetchExercises();
     } else if (!isAuth) {
       setLoading(false);
     }
   }, [isAuth, accessToken]);
 
-  const fetchRecentExercises = async () => {
+  const fetchExercises = async () => {
     setLoading(true);
     try {
-      const response = await fetch('/api/exercises/recent/', {
+      const response = await fetch('/api/v1/exercises/', {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${accessToken}`,
@@ -40,7 +41,7 @@ const RecentExercisesPage: React.FC = () => {
 
       if (response.ok) {
         const data = await response.json();
-        setRecentExercises(data);
+        setExercises(data);
       } else if (response.status === 401) {
         setSnackbarMessage('❌ Сессия истекла, войдите заново');
         setShowSnackbar(true);
@@ -51,7 +52,7 @@ const RecentExercisesPage: React.FC = () => {
         setTimeout(() => setShowSnackbar(false), 3000);
       }
     } catch (error) {
-      console.error('Error fetching recent exercises:', error);
+      console.error('Error fetching exercises:', error);
       setSnackbarMessage('❌ Ошибка соединения с сервером');
       setShowSnackbar(true);
       setTimeout(() => setShowSnackbar(false), 3000);
@@ -60,52 +61,11 @@ const RecentExercisesPage: React.FC = () => {
     }
   };
 
-  const updateExerciseUsage = async (exerciseId: number, exerciseName: string) => {
-    try {
-      const response = await fetch('/api/exercises/recent/update/', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${accessToken}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ exercise_id: exerciseId }),
-      });
-
-      if (response.ok) {
-        const updatedExercise = await response.json();
-        
-        setRecentExercises(prev => {
-          const existingIndex = prev.findIndex(e => e.exercise_id === exerciseId);
-          if (existingIndex !== -1) {
-            const updated = [...prev];
-            updated[existingIndex] = updatedExercise;
-            return updated.sort((a, b) => new Date(b.last_used).getTime() - new Date(a.last_used).getTime());
-          }
-          return [updatedExercise, ...prev];
-        });
-        
-        setSnackbarMessage(`✅ ${exerciseName} добавлено в недавние`);
-        setShowSnackbar(true);
-        setTimeout(() => setShowSnackbar(false), 3000);
-      } else {
-        setSnackbarMessage(`❌ Ошибка при добавлении`);
-        setShowSnackbar(true);
-        setTimeout(() => setShowSnackbar(false), 2000);
-      }
-    } catch (error) {
-      console.error('Error updating exercise:', error);
-      setSnackbarMessage(`❌ Ошибка соединения`);
-      setShowSnackbar(true);
-      setTimeout(() => setShowSnackbar(false), 3000);
-    }
-  };
-
-  const handleExerciseClick = (exercise: RecentExercise) => {
-    updateExerciseUsage(exercise.exercise_id, exercise.exercise_name);
-  };
-
-  const goToExercisesPage = () => {
-    window.location.href = '/exercises';
+  const handleExerciseClick = (exercise: Exercise) => {
+    // Можно просто показывать информацию об упражнении
+    setSnackbarMessage(`📋 ${exercise.name} — ${exercise.muscle_group_name}`);
+    setShowSnackbar(true);
+    setTimeout(() => setShowSnackbar(false), 2000);
   };
 
   if (loading) {
@@ -119,31 +79,25 @@ const RecentExercisesPage: React.FC = () => {
   return (
     <div className="recent-exercises-container">
       <div className="recent-exercises-header">
-        <h1 className="recent-exercises-title">Недавние упражнения</h1>
-        <button onClick={goToExercisesPage} className="check-button" title="Все упражнения">
-          ✓
-        </button>
+        <h1 className="recent-exercises-title">Упражнения</h1>
       </div>
 
-      {recentExercises.length === 0 ? (
+      {exercises.length === 0 ? (
         <div className="empty-state">
-          <p>У вас пока нет недавних упражнений</p>
-          <p className="empty-state-hint">Начните добавлять упражнения из раздела "Упражнения"</p>
+          <p>Упражнения пока не добавлены</p>
+          <p className="empty-state-hint">Обратитесь к администратору</p>
         </div>
       ) : (
         <div className="recent-exercises-list">
-          {recentExercises.map((exercise) => (
+          {exercises.map((exercise) => (
             <div
               key={exercise.id}
               onClick={() => handleExerciseClick(exercise)}
               className="recent-exercise-item"
             >
-              <div className="exercise-name">{exercise.exercise_name}</div>
+              <div className="exercise-name">{exercise.name}</div>
               <div className="exercise-meta">
-                <span className="use-count">🔁 {exercise.use_count} раз</span>
-                <span className="last-used">
-                  📅 {new Date(exercise.last_used).toLocaleDateString('ru-RU')}
-                </span>
+                <span className="last-used">💪 {exercise.muscle_group_name}</span>
               </div>
             </div>
           ))}
@@ -159,4 +113,4 @@ const RecentExercisesPage: React.FC = () => {
   );
 };
 
-export default RecentExercisesPage;
+export default ExercisesPage;
