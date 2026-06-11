@@ -2,8 +2,21 @@ import './right-column.scss'
 import Calendar from '../../widgets/calendar/calendar'
 import { useDateStore } from './selectedDay'
 
-const RightColumn = ({ showCalendar = false }) => {
+// для включения календаря:
+// const setShowCalendar = useDateStore((state) => state.setShowCalendar);
+
+// useEffect(() => {
+//     setShowCalendar(true);
+    
+//     // Сбрасываем при уходе со страницы
+//     return () => {
+//     setShowCalendar(false);
+//     };
+// }, [setShowCalendar]);
+
+const RightColumn = () => {
     const setSelectedDateISO = useDateStore((state => state.setSelectedDateISO))
+    const showCalendar = useDateStore(state => state.showCalendar)
 
     if (showCalendar) {
         return (<main className="right-column">

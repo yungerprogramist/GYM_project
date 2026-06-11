@@ -3,12 +3,11 @@
   "info": {
     "title": "Gym Project API",
     "version": "1.0.0",
-    "description": "API для фитнес-трекера с календарем тренировок, статистикой и дневником тренировок"
+    "description": "API для фитнес-трекера"
   },
   "servers": [
     {
-      "url": "/",
-      "description": "Основной сервер API"
+      "url": "/api/v1"
     }
   ],
   "tags": [
@@ -18,13 +17,10 @@
     { "name": "Sets", "description": "Подходы" },
     { "name": "Notes", "description": "Заметки пользователя" },
     { "name": "Users", "description": "Профиль и настройки пользователя" },
-    { "name": "Programs", "description": "Программы тренировок" },
-    { "name": "Calendar", "description": "Календарь тренировок" },
-    { "name": "Statistics", "description": "Статистика тренировок" },
-    { "name": "RecentExercises", "description": "Недавние упражнения" }
+    { "name": "Programs", "description": "Программы тренировок" }
   ],
   "paths": {
-    "/api/v1/programs/": {
+    "/programs/": {
       "get": {
         "summary": "Список программ тренировок",
         "tags": ["Programs"],
@@ -70,7 +66,7 @@
         }
       }
     },
-    "/api/v1/programs/{id}/": {
+    "/programs/{id}/": {
       "get": {
         "summary": "Детали программы с днями",
         "tags": ["Programs"],
@@ -115,7 +111,7 @@
         }
       }
     },
-    "/api/v1/programs/{id}/days/{day_id}/": {
+    "/programs/{id}/days/{day_id}/": {
       "get": {
         "summary": "Упражнения дня программы",
         "tags": ["Programs"],
@@ -136,7 +132,7 @@
         }
       }
     },
-    "/api/v1/programs/{id}/days/{day_id}/import/": {
+    "/programs/{id}/days/{day_id}/import/": {
       "post": {
         "summary": "Импортировать день в сегодняшнюю тренировку",
         "tags": ["Programs"],
@@ -157,7 +153,7 @@
         }
       }
     },
-    "/api/v1/exercises/muscle-groups/": {
+    "/exercises/muscle-groups/": {
       "get": {
         "summary": "Список всех групп мышц",
         "tags": ["MuscleGroups"],
@@ -177,12 +173,14 @@
         }
       }
     },
-    "/api/v1/exercises/muscle-groups/{id}/": {
+    "/exercises/muscle-groups/{id}/": {
       "get": {
         "summary": "Детали группы мышц",
         "tags": ["MuscleGroups"],
         "security": [],
-        "parameters": [{ "$ref": "#/components/parameters/id" }],
+        "parameters": [
+          { "$ref": "#/components/parameters/id" }
+        ],
         "responses": {
           "200": {
             "description": "Успешно",
@@ -196,7 +194,7 @@
         }
       }
     },
-    "/api/v1/exercises/": {
+    "/exercises/": {
       "get": {
         "summary": "Список упражнений",
         "tags": ["Exercises"],
@@ -262,12 +260,14 @@
         }
       }
     },
-    "/api/v1/exercises/{id}/": {
+    "/exercises/{id}/": {
       "get": {
         "summary": "Детали упражнения",
         "tags": ["Exercises"],
         "security": [{ "bearerAuth": [] }],
-        "parameters": [{ "$ref": "#/components/parameters/id" }],
+        "parameters": [
+          { "$ref": "#/components/parameters/id" }
+        ],
         "responses": {
           "200": {
             "description": "Успешно",
@@ -285,7 +285,9 @@
         "summary": "Обновить упражнение (только admin)",
         "tags": ["Exercises"],
         "security": [{ "bearerAuth": [] }],
-        "parameters": [{ "$ref": "#/components/parameters/id" }],
+        "parameters": [
+          { "$ref": "#/components/parameters/id" }
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -312,7 +314,9 @@
         "summary": "Удалить упражнение (только admin)",
         "tags": ["Exercises"],
         "security": [{ "bearerAuth": [] }],
-        "parameters": [{ "$ref": "#/components/parameters/id" }],
+        "parameters": [
+          { "$ref": "#/components/parameters/id" }
+        ],
         "responses": {
           "204": { "description": "Удалено" },
           "403": { "description": "Нет прав" },
@@ -320,7 +324,7 @@
         }
       }
     },
-    "/api/v1/workouts/": {
+    "/workouts/": {
       "get": {
         "summary": "Список тренировок с пагинацией и фильтром по дате",
         "tags": ["Workouts"],
@@ -353,7 +357,7 @@
         }
       }
     },
-    "/api/v1/workouts/create/": {
+    "/workouts/create/": {
       "post": {
         "summary": "Создать тренировку на дату",
         "description": "Создаёт тренировку на указанную дату. Если тренировка уже существует — возвращает 409.",
@@ -382,7 +386,7 @@
         }
       }
     },
-    "/api/v1/workouts/calendar-dates/": {
+    "/workouts/calendar-dates/": {
       "get": {
         "summary": "Даты тренировок для календаря",
         "tags": ["Workouts"],
@@ -403,12 +407,14 @@
         }
       }
     },
-    "/api/v1/workouts/{workout_id}/": {
+    "/workouts/{workout_id}/": {
       "get": {
         "summary": "Детали тренировки",
         "tags": ["Workouts"],
         "security": [{ "bearerAuth": [] }],
-        "parameters": [{ "$ref": "#/components/parameters/workout_id" }],
+        "parameters": [
+          { "$ref": "#/components/parameters/workout_id" }
+        ],
         "responses": {
           "200": {
             "description": "Успешно",
@@ -425,14 +431,16 @@
         "summary": "Удалить тренировку",
         "tags": ["Workouts"],
         "security": [{ "bearerAuth": [] }],
-        "parameters": [{ "$ref": "#/components/parameters/workout_id" }],
+        "parameters": [
+          { "$ref": "#/components/parameters/workout_id" }
+        ],
         "responses": {
           "204": { "description": "Удалено" },
           "404": { "description": "Не найдена или чужая" }
         }
       }
     },
-    "/api/v1/workouts/today/": {
+    "/workouts/today/": {
       "get": {
         "summary": "Сегодняшняя тренировка (автосоздание)",
         "tags": ["Workouts"],
@@ -449,12 +457,14 @@
         }
       }
     },
-    "/api/v1/workouts/{workout_id}/stats/": {
+    "/workouts/{workout_id}/stats/": {
       "get": {
         "summary": "Статистика тренировки",
         "tags": ["Workouts"],
         "security": [{ "bearerAuth": [] }],
-        "parameters": [{ "$ref": "#/components/parameters/workout_id" }],
+        "parameters": [
+          { "$ref": "#/components/parameters/workout_id" }
+        ],
         "responses": {
           "200": {
             "description": "Успешно",
@@ -467,12 +477,14 @@
         }
       }
     },
-    "/api/v1/workouts/{workout_id}/exercises/": {
+    "/workouts/{workout_id}/exercises/": {
       "post": {
         "summary": "Добавить упражнение в тренировку",
         "tags": ["Workouts"],
         "security": [{ "bearerAuth": [] }],
-        "parameters": [{ "$ref": "#/components/parameters/workout_id" }],
+        "parameters": [
+          { "$ref": "#/components/parameters/workout_id" }
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -501,7 +513,7 @@
         }
       }
     },
-    "/api/v1/workouts/{workout_id}/exercises/{exercise_id}/": {
+    "/workouts/{workout_id}/exercises/{exercise_id}/": {
       "delete": {
         "summary": "Удалить упражнение из тренировки",
         "tags": ["Workouts"],
@@ -515,7 +527,7 @@
         }
       }
     },
-    "/api/v1/workouts/{workout_id}/exercises/{exercise_id}/sets/": {
+    "/workouts/{workout_id}/exercises/{exercise_id}/sets/": {
       "post": {
         "summary": "Добавить подход",
         "tags": ["Sets"],
@@ -553,12 +565,14 @@
         }
       }
     },
-    "/api/v1/workouts/sets/{set_id}/": {
+    "/workouts/sets/{set_id}/": {
       "put": {
         "summary": "Обновить подход",
         "tags": ["Sets"],
         "security": [{ "bearerAuth": [] }],
-        "parameters": [{ "$ref": "#/components/parameters/set_id" }],
+        "parameters": [
+          { "$ref": "#/components/parameters/set_id" }
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -591,14 +605,16 @@
         "summary": "Удалить подход",
         "tags": ["Sets"],
         "security": [{ "bearerAuth": [] }],
-        "parameters": [{ "$ref": "#/components/parameters/set_id" }],
+        "parameters": [
+          { "$ref": "#/components/parameters/set_id" }
+        ],
         "responses": {
           "204": { "description": "Удалено" },
           "404": { "description": "Не найден или чужой" }
         }
       }
     },
-    "/api/v1/notes/": {
+    "/notes/": {
       "get": {
         "summary": "Получить заметку (автосоздание если нет)",
         "tags": ["Notes"],
@@ -616,12 +632,14 @@
         }
       }
     },
-    "/api/v1/notes/{id}/": {
+    "/notes/{id}/": {
       "put": {
         "summary": "Обновить заметку",
         "tags": ["Notes"],
         "security": [{ "bearerAuth": [] }],
-        "parameters": [{ "$ref": "#/components/parameters/id" }],
+        "parameters": [
+          { "$ref": "#/components/parameters/id" }
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -647,14 +665,16 @@
         "summary": "Удалить заметку",
         "tags": ["Notes"],
         "security": [{ "bearerAuth": [] }],
-        "parameters": [{ "$ref": "#/components/parameters/id" }],
+        "parameters": [
+          { "$ref": "#/components/parameters/id" }
+        ],
         "responses": {
           "204": { "description": "Удалено" },
           "401": { "description": "Не авторизован" }
         }
       }
     },
-    "/api/v1/users/register/": {
+    "/users/register/": {
       "post": {
         "summary": "Регистрация",
         "tags": ["Users"],
@@ -680,7 +700,7 @@
         }
       }
     },
-    "/api/v1/users/login/": {
+    "/users/login/": {
       "post": {
         "summary": "Вход",
         "tags": ["Users"],
@@ -706,7 +726,7 @@
         }
       }
     },
-    "/api/v1/users/logout/": {
+    "/users/logout/": {
       "post": {
         "summary": "Выход",
         "tags": ["Users"],
@@ -731,7 +751,7 @@
         }
       }
     },
-    "/api/v1/users/profile/": {
+    "/users/profile/": {
       "get": {
         "summary": "Профиль пользователя",
         "tags": ["Users"],
@@ -773,7 +793,7 @@
         }
       }
     },
-    "/api/v1/users/settings/": {
+    "/users/settings/": {
       "get": {
         "summary": "Настройки пользователя",
         "tags": ["Users"],
@@ -814,153 +834,6 @@
           "401": { "description": "Не авторизован" }
         }
       }
-    },
-    "/api/v1/calendar/month/{year}/{month}/": {
-      "get": {
-        "summary": "Получить календарь тренировок за месяц",
-        "description": "Возвращает данные о тренировках за указанный месяц для авторизованного пользователя",
-        "tags": ["Calendar"],
-        "security": [{ "bearerAuth": [] }],
-        "parameters": [
-          { "$ref": "#/components/parameters/year" },
-          { "$ref": "#/components/parameters/month" }
-        ],
-        "responses": {
-          "200": {
-            "description": "Успешно",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "additionalProperties": {
-                    "type": "array",
-                    "items": { "$ref": "#/components/schemas/WorkoutCalendarItem" }
-                  },
-                  "example": {
-                    "2026-05-15": [
-                      { "id": 1, "date": "2026-05-15", "exercise_count": 5, "total_weight": 750.5 }
-                    ]
-                  }
-                }
-              }
-            }
-          },
-          "400": { "description": "Неверный формат года или месяца" },
-          "401": { "description": "Не авторизован" }
-        }
-      }
-    },
-    "/api/v1/statistics/summary/": {
-      "get": {
-        "summary": "Получить сводную статистику",
-        "description": "Возвращает общую статистику тренировок пользователя",
-        "tags": ["Statistics"],
-        "security": [{ "bearerAuth": [] }],
-        "responses": {
-          "200": {
-            "description": "Успешно",
-            "content": {
-              "application/json": {
-                "schema": { "$ref": "#/components/schemas/StatisticsSummary" }
-              }
-            }
-          },
-          "401": { "description": "Не авторизован" }
-        }
-      }
-    },
-    "/api/v1/statistics/period/": {
-      "get": {
-        "summary": "Получить статистику за период",
-        "description": "Возвращает статистику тренировок за указанный период",
-        "tags": ["Statistics"],
-        "security": [{ "bearerAuth": [] }],
-        "parameters": [
-          {
-            "name": "start_date",
-            "in": "query",
-            "required": true,
-            "description": "Начальная дата периода",
-            "schema": { "type": "string", "format": "date", "example": "2026-05-01" }
-          },
-          {
-            "name": "end_date",
-            "in": "query",
-            "required": true,
-            "description": "Конечная дата периода",
-            "schema": { "type": "string", "format": "date", "example": "2026-05-31" }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Успешно",
-            "content": {
-              "application/json": {
-                "schema": { "$ref": "#/components/schemas/StatisticsPeriod" }
-              }
-            }
-          },
-          "400": { "description": "Неверный формат даты или период указан некорректно" },
-          "401": { "description": "Не авторизован" }
-        }
-      }
-    },
-    "/api/v1/exercises/recent/": {
-      "get": {
-        "summary": "Получить список недавних упражнений",
-        "description": "Возвращает список недавно использованных упражнений для авторизованного пользователя",
-        "tags": ["RecentExercises"],
-        "security": [{ "bearerAuth": [] }],
-        "responses": {
-          "200": {
-            "description": "Успешно",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": { "$ref": "#/components/schemas/RecentExercise" }
-                }
-              }
-            }
-          },
-          "401": { "description": "Не авторизован" }
-        }
-      }
-    },
-    "/api/v1/exercises/recent/update/": {
-      "post": {
-        "summary": "Обновить счетчик недавних упражнений",
-        "description": "Обновляет информацию об использовании упражнения (увеличивает счетчик и обновляет дату)",
-        "tags": ["RecentExercises"],
-        "security": [{ "bearerAuth": [] }],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "exercise_id": { "type": "integer", "description": "ID упражнения", "example": 42 }
-                },
-                "required": ["exercise_id"]
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Успешно обновлено",
-            "content": {
-              "application/json": {
-                "schema": { "$ref": "#/components/schemas/RecentExercise" }
-              }
-            }
-          },
-          "400": { "description": "Не указан exercise_id или упражнение не найдено" },
-          "401": { "description": "Не авторизован" },
-          "404": { "description": "Упражнение не найдено" }
-        }
-      }
     }
   },
   "components": {
@@ -968,8 +841,7 @@
       "bearerAuth": {
         "type": "http",
         "scheme": "bearer",
-        "bearerFormat": "JWT",
-        "description": "JWT токен для авторизации"
+        "bearerFormat": "JWT"
       }
     },
     "parameters": {
@@ -1002,20 +874,6 @@
         "in": "path",
         "required": true,
         "schema": { "type": "integer" }
-      },
-      "year": {
-        "name": "year",
-        "in": "path",
-        "required": true,
-        "description": "Год (например, 2026)",
-        "schema": { "type": "integer", "minimum": 2000, "maximum": 2100, "example": 2026 }
-      },
-      "month": {
-        "name": "month",
-        "in": "path",
-        "required": true,
-        "description": "Месяц (1-12)",
-        "schema": { "type": "integer", "minimum": 1, "maximum": 12, "example": 5 }
       }
     },
     "schemas": {
@@ -1135,25 +993,26 @@
       "WorkoutCreate": {
         "type": "object",
         "properties": {
-          "date": { "type": "string", "format": "date", "example": "2026-06-01" }
+          "date": {
+            "type": "string",
+            "format": "date",
+            "example": "2026-06-01"
+          }
         },
         "required": ["date"]
       },
       "Workout": {
         "type": "object",
-        "description": "Модель тренировки (объединенная)",
         "properties": {
-          "id": { "type": "integer", "readOnly": true, "description": "Уникальный идентификатор тренировки" },
-          "user": { "type": "integer", "readOnly": true, "description": "ID пользователя" },
-          "date": { "type": "string", "format": "date", "description": "Дата тренировки" },
+          "id": { "type": "integer", "readOnly": true },
+          "date": { "type": "string", "format": "date" },
           "exercises": {
             "type": "array",
             "items": { "$ref": "#/components/schemas/WorkoutExercise" }
           },
           "exercise_count": { "type": "integer" },
           "set_count": { "type": "integer" },
-          "total_weight": { "type": "number", "description": "Общий тоннаж (вес × повторения)" },
-          "notes": { "type": "string", "nullable": true, "description": "Заметки к тренировке" }
+          "total_weight": { "type": "number", "description": "Общий тоннаж (вес × повторения)" }
         }
       },
       "WorkoutExercise": {
@@ -1186,83 +1045,6 @@
           "exercise_count": { "type": "integer" },
           "set_count": { "type": "integer" },
           "total_weight": { "type": "number", "description": "Общий тоннаж (вес × повторения)" }
-        }
-      },
-      "WorkoutCalendarItem": {
-        "type": "object",
-        "description": "Элемент календаря тренировок",
-        "properties": {
-          "id": { "type": "integer", "description": "ID тренировки" },
-          "date": { "type": "string", "format": "date", "description": "Дата тренировки" },
-          "exercise_count": { "type": "integer", "description": "Количество упражнений в тренировке" },
-          "total_weight": { "type": "number", "format": "float", "description": "Общий поднятый вес" }
-        }
-      },
-      "StatisticsSummary": {
-        "type": "object",
-        "description": "Сводная статистика",
-        "properties": {
-          "total_workouts": { "type": "integer", "description": "Общее количество тренировок" },
-          "total_exercises": { "type": "integer", "description": "Общее количество выполненных упражнений" },
-          "total_sets": { "type": "integer", "description": "Общее количество подходов" },
-          "total_weight": { "type": "number", "format": "float", "description": "Общий поднятый вес за все время" },
-          "avg_workouts_per_week": { "type": "number", "format": "float", "description": "Среднее количество тренировок в неделю" },
-          "longest_streak": { "type": "integer", "description": "Самая длинная серия тренировок подряд (дней)" },
-          "current_streak": { "type": "integer", "description": "Текущая серия тренировок подряд (дней)" },
-          "most_active_month": { "type": "string", "description": "Самый активный месяц" },
-          "most_common_exercise": {
-            "type": "object",
-            "properties": {
-              "id": { "type": "integer" },
-              "name": { "type": "string" },
-              "count": { "type": "integer" }
-            }
-          }
-        }
-      },
-      "StatisticsPeriod": {
-        "type": "object",
-        "description": "Статистика за период",
-        "properties": {
-          "period": {
-            "type": "object",
-            "properties": {
-              "start_date": { "type": "string", "format": "date" },
-              "end_date": { "type": "string", "format": "date" }
-            }
-          },
-          "total_workouts": { "type": "integer", "description": "Количество тренировок за период" },
-          "total_exercises": { "type": "integer", "description": "Количество упражнений за период" },
-          "total_sets": { "type": "integer", "description": "Количество подходов за период" },
-          "total_weight": { "type": "number", "format": "float", "description": "Общий поднятый вес за период" },
-          "workouts_per_day": {
-            "type": "array",
-            "description": "Тренировки по дням",
-            "items": {
-              "type": "object",
-              "properties": {
-                "date": { "type": "string", "format": "date" },
-                "workouts_count": { "type": "integer" },
-                "total_weight": { "type": "number" }
-              }
-            }
-          },
-          "trend": {
-            "type": "string",
-            "description": "Тренд активности (increasing, decreasing, stable)",
-            "enum": ["increasing", "decreasing", "stable"]
-          }
-        }
-      },
-      "RecentExercise": {
-        "type": "object",
-        "description": "Модель недавних упражнений",
-        "properties": {
-          "id": { "type": "integer", "readOnly": true, "description": "Уникальный идентификатор записи" },
-          "exercise_id": { "type": "integer", "readOnly": true, "description": "ID упражнения" },
-          "exercise_name": { "type": "string", "readOnly": true, "description": "Название упражнения" },
-          "last_used": { "type": "string", "format": "date-time", "readOnly": true, "description": "Дата и время последнего использования" },
-          "use_count": { "type": "integer", "readOnly": true, "description": "Количество использований", "minimum": 0 }
         }
       },
       "Note": {

@@ -57,11 +57,12 @@ const WeightTracker: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [period, setPeriod] = useState<'week' | 'month' | 'year'>('year');
   const selectedDate = useDateStore(state => state.selectedDateISO);
+  const setShowCalendar = useDateStore((state) => state.setShowCalendar); // для включения календаря
 
   // 1. Получение списка записей веса (с пагинацией)
   const fetchWeightRecords = async () => {
     try {
-      const response = await fetch('/api/measurements/weight/');
+      const response = await fetch('/api/v1/measurements/weight/');
       
       if (!response.ok) {
         throw new Error(`Ошибка HTTP: ${response.status}`);
@@ -113,7 +114,7 @@ const WeightTracker: React.FC = () => {
   // 2. Получение данных для графика (прямой массив)
   const fetchChartData = async (selectedPeriod: 'week' | 'month' | 'year') => {
     try {
-      const response = await fetch(`/api/measurements/weight/chart_data/?period=${selectedPeriod}`);
+      const response = await fetch(`/api/v1/measurements/weight/chart_data/?period=${selectedPeriod}`);
       
       if (!response.ok) {
         throw new Error(`Ошибка HTTP: ${response.status}`);
@@ -180,7 +181,10 @@ const WeightTracker: React.FC = () => {
     };
     
     loadAllData();
-  }, [period]);
+
+    setShowCalendar(true);
+    return () => setShowCalendar(false); // Важно! Сброс при уходе со страницы
+  }, [period, setShowCalendar]);
 
   // Открытие меню троеточия
   const handleMenuOpen = (event: React.MouseEvent<HTMLElement>, recordId: number) => {
@@ -200,7 +204,7 @@ const WeightTracker: React.FC = () => {
       if (comment !== null) {
         try {
           // Используем специальный эндпоинт для обновления комментария
-          const response = await fetch(`/api/measurements/weight/${selectedRecordId}/update_comment/`, {
+          const response = await fetch(`/api/v1/measurements/weight/${selectedRecordId}/update_comment/`, {
             method: 'PATCH',
             headers: {
               'Content-Type': 'application/json',
@@ -241,7 +245,7 @@ const WeightTracker: React.FC = () => {
       if (!isNaN(newWeight) && newWeight > 0) {
         try {
           // Для редактирования веса используем стандартный PATCH к detail эндпоинту
-          const response = await fetch(`/api/measurements/weight/${selectedRecordId}/`, {
+          const response = await fetch(`/api/v1/measurements/weight/${selectedRecordId}/`, {
             method: 'PATCH',
             headers: {
               'Content-Type': 'application/json',
@@ -280,7 +284,7 @@ const WeightTracker: React.FC = () => {
       if (confirmDelete) {
         try {
           // Используем специальный эндпоинт для удаления
-          const response = await fetch(`/api/measurements/weight/${selectedRecordId}/delete_weight/`, {
+          const response = await fetch(`/api/v1/measurements/weight/${selectedRecordId}/delete_weight/`, {
             method: 'DELETE',
           });
           
@@ -305,13 +309,17 @@ const WeightTracker: React.FC = () => {
   // Добавление новой записи о весе (используем perform_create через стандартный POST)
   const handleAddWeight = async () => {
     const weightNum = parseFloat(weightInput);
-    if (isNaN(weightNum) || weightNum <= 0) {
-      alert('Введите корректный вес (положительное число)');
+    if (isNaN(weightNum) || weightNum <= 20 || weightNum > 500) {
+      alert('Введите корректный вес (положительное число, от 20 до 500)');
       return;
     }
 
     // Сегодняшняя дата в формате YYYY-MM-DD
     const today = new Date().toISOString().split('T')[0];
+    if (selectedDate > today) {
+      alert('Выберите корректную дату (не позднее сегодняшней)');
+      return;
+    }
 
     const newRecord = {
       date: selectedDate ?? today,
@@ -320,7 +328,7 @@ const WeightTracker: React.FC = () => {
 
     try {
       // POST запрос вызовет perform_create в ViewSet, который сам обработает привязку к пользователю
-      const response = await fetch(`/api/measurements/weight/`, {
+      const response = await fetch(`/api/v1/measurements/weight/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

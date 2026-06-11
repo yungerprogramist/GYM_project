@@ -1,87 +1,47 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Container, Box, TextField, Button, Typography, Alert, CircularProgress } from '@mui/material';
 import useAuthStore from '../../features/auth';
 
-interface LoginPageProps {
-  onLoginSuccess: () => void;
-}
-
-const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
+const LoginPage: React.FC = () => {
+  const navigate = useNavigate();
+  const storeLogin = useAuthStore((state) => state.login);
+  
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
-  // const [loading, setLoading] = useState(false);
-
-  const login = useAuthStore((state) => state.login);
-  const loading = useAuthStore((state) => state.isLoading);
+  const [loading, setLoading] = useState(false);
 
   const handleLogin = async () => {
-    const result = await login(username, password);
+    if (!username.trim() || !password.trim()) {
+      setError('Пожалуйста, заполните логин и пароль');
+      return;
+    }
+
+    setError(null);
+    setLoading(true);
+
+    const result = await storeLogin(username.trim(), password);
+
+    setLoading(false);
+
     switch (result) {
       case "successful":
-        // router.push('/dashboard');
-        onLoginSuccess();
+        navigate('/my-account');
         break;
-      case "user not found":
-        setError("Такого пользователя нет");
-        break;
-      case "incorrect password":
-        setError("Неверный пароль");
+      case "incorrect login or password":
+        setError('Неверный логин или пароль');
         break;
       case "server error":
-        setError("Проблема с сервером, попробуйте позже");
+        setError('Ошибка соединения с сервером. Проверьте, запущен ли бэкенд.');
+        break;
+      default:
+        setError('Произошла неизвестная ошибка');
         break;
     }
-    // // Валидация
-    // if (!username.trim() || !password.trim()) {
-    //   setError('Пожалуйста, заполните логин и пароль');
-    //   return;
-    // }
-
-    // setError(null);
-    // setLoading(true);
-
-    // try {
-    //   const response = await fetch('/api/users/login/', {
-    //     method: 'POST',
-    //     headers: {
-    //       'Content-Type': 'application/json',
-    //     },
-    //     body: JSON.stringify({
-    //       username: username.trim(),
-    //       password: password,
-    //     }),
-    //   });
-
-    //   const data = await response.json();
-
-    //   if (response.ok) {
-    //     // Сохраняем токены
-    //     localStorage.setItem('access_token', data.tokens.access);
-    //     localStorage.setItem('refresh_token', data.tokens.refresh);
-        
-    //     // Можно также сохранить информацию о пользователе, если она приходит
-    //     if (data.user) {
-    //       localStorage.setItem('user', JSON.stringify(data.user));
-    //     }
-        
-    //     // Вызываем callback успешного входа
-    //     onLoginSuccess();
-    //   } else {
-    //     // Обработка ошибок от сервера
-    //     const errorMessage = data.detail || data.message || 'Неверный логин или пароль';
-    //     setError(errorMessage);
-    //   }
-    // } catch (err) {
-    //   console.error('Login error:', err);
-    //   setError('Ошибка соединения с сервером. Проверьте, запущен ли бэкенд.');
-    // } finally {
-    //   setLoading(false);
-    // }
   };
 
-  // Обработка нажатия Enter
-  const handleKeyPress = async (e: React.KeyboardEvent) => {
+  const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !loading) {
       handleLogin();
     }
@@ -158,7 +118,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
           disabled={loading}
           sx={{
             height: 45,
-            backgroundColor: loading ? '#e0e0e0' : '#c3c3c3',
+            backgroundColor: loading ? '#e0e0e0' : '#388E3C',
             borderRadius: '32px',
             textTransform: 'none',
             mt: 3,

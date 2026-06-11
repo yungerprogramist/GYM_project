@@ -1,50 +1,60 @@
 from rest_framework import viewsets, filters
 from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
 from django_filters.rest_framework import DjangoFilterBackend
+from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiTypes, inline_serializer
+from rest_framework import serializers as drf_serializers
 
 from .models import MuscleGroup, Exercise
 from .serializers import MuscleGroupSerializer, ExerciseSerializer
 
 
+@extend_schema_view(
+    list=extend_schema(tags=['MuscleGroups']),
+    retrieve=extend_schema(tags=['MuscleGroups']),
+)
 class MuscleGroupViewSet(viewsets.ReadOnlyModelViewSet):
-    """
-    GET /api/v1/exercises/muscle-groups/      — список всех групп мышц
-    GET /api/v1/exercises/muscle-groups/{id}/ — детали одной группы
-
-    ReadOnly — редактировать группы можно только через Django Admin.
-    """
     queryset = MuscleGroup.objects.all()
     serializer_class = MuscleGroupSerializer
-    permission_classes = [AllowAny]  # список мышц доступен без авторизации
+    permission_classes = [AllowAny]
 
 
+exercise_write_schema = inline_serializer(
+    name='ExerciseWrite',
+    fields={
+        'muscle_group': drf_serializers.IntegerField(),
+        'name': drf_serializers.CharField(max_length=200),
+        'description': drf_serializers.CharField(required=False, default=""),
+        'image': drf_serializers.FileField(required=False, allow_null=True),
+    }
+)
+
+
+@extend_schema_view(
+    list=extend_schema(tags=['Exercises']),
+    retrieve=extend_schema(tags=['Exercises']),
+    create=extend_schema(
+        tags=['Exercises'],
+        request={'multipart/form-data': exercise_write_schema},
+    ),
+    update=extend_schema(
+        tags=['Exercises'],
+        request={'multipart/form-data': exercise_write_schema},
+    ),
+    partial_update=extend_schema(
+        tags=['Exercises'],
+        request={'multipart/form-data': exercise_write_schema},
+    ),
+    destroy=extend_schema(tags=['Exercises']),
+)
 class ExerciseViewSet(viewsets.ModelViewSet):
-    """
-    GET    /api/v1/exercises/         — список упражнений (с фильтрацией и поиском)
-    GET    /api/v1/exercises/{id}/    — детали упражнения
-    POST   /api/v1/exercises/         — создать упражнение (только admin)
-    PUT    /api/v1/exercises/{id}/    — обновить упражнение (только admin)
-    PATCH  /api/v1/exercises/{id}/    — частично обновить (только admin)
-    DELETE /api/v1/exercises/{id}/    — удалить упражнение (только admin)
-
-    Фильтрация:  ?muscle_group=1
-    Поиск:       ?search=жим
-    Сортировка:  ?ordering=name
-    """
     queryset = Exercise.objects.select_related("muscle_group").all()
     serializer_class = ExerciseSerializer
-
-    # Бэкенды для фильтрации, поиска и сортировки
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-    filterset_fields = ["muscle_group"]   # ?muscle_group=<id>
-    search_fields = ["name", "description"]  # ?search=<текст>
+    filterset_fields = ["muscle_group"]
+    search_fields = ["name", "description"]
     ordering_fields = ["name", "id"]
 
     def get_permissions(self):
-        """
-        Читать упражнения может любой авторизованный пользователь.
-        Создавать / редактировать / удалять — только admin.
-        """
         if self.action in ["list", "retrieve"]:
             return [IsAuthenticated()]
         return [IsAdminUser()]

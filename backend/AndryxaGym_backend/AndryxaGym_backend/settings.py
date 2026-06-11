@@ -34,7 +34,8 @@ INSTALLED_APPS = [
     'measurements',
     'workouts',
     'programs.apps.ProgramsConfig',
-    'apps.calendar',
+    'calendar_custom',
+    # 'calendar_custom.apps.CalendarCustomConfig'
 ]
 
 AUTH_USER_MODEL = 'users.User'
