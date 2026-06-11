@@ -19,7 +19,7 @@ interface TabItem {
 
 // Верхние вкладки
 const topTabs: TabItem[] = [
-  { id: 'exercises', label: 'Упражнения', icon: ExercisesIcon, path: '/exercises' }, // нужно будет создать
+  { id: 'exercises', label: 'Упражнения', icon: ExercisesIcon, path: '/recent-exercises' },
   { id: 'training-programs', label: 'Программы', icon: ProgramsIcon, path: '/training-programs' }, // ← уже есть
   { id: 'weight-tracker', label: 'Замеры', icon: MeasurementsIcon, path: '/weight-tracker' }, // ← уже есть (вес)
   { id: 'notebook', label: 'Блокнот', icon: NotebookIcon, path: '/notebook' }, // нужно будет создать
@@ -41,6 +41,7 @@ const LeftPanel: React.FC = () => {
   useEffect(() => {
     const allTabs = [...topTabs, ...bottomTabs];
     const foundTab = allTabs.find(tab => tab.path === location.pathname);
+    console.log('Current path:', location.pathname, 'Found tab:', foundTab);
     if (foundTab) {
       setActiveTabId(foundTab.id);
     }

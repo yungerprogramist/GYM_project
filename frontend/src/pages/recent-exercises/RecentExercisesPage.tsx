@@ -1,108 +1,63 @@
-import React, { useState, useEffect } from 'react';
-import useAuthStore from '../../features/auth';
+import React, { useState } from 'react';
 import './recent-exercises.scss';
 
-interface Exercise {
+// Импорт иконок для упражнений
+import ChestIcon1 from '../exercises-by-section/assets/chest_1.png';
+import ChestIcon2 from '../exercises-by-section/assets/chest_2.png';
+import ChestIcon3 from '../exercises-by-section/assets/chest_3.png';
+import ChestIcon4 from '../exercises-by-section/assets/chest_4.png';
+import ChestIcon5 from '../exercises-by-section/assets/chest_5.png';
+
+interface RecentExercise {
   id: number;
-  muscle_group: number;
-  muscle_group_name: string;
   name: string;
-  description: string;
-  image: string | null;
+  icon: string;
 }
 
-const ExercisesPage: React.FC = () => {
-  const [exercises, setExercises] = useState<Exercise[]>([]);
+const mockRecentExercises: RecentExercise[] = [
+  { id: 1, name: "Жим лежа - штанга", icon: ChestIcon1 },
+  { id: 2, name: "Жим лежа - гантели", icon: ChestIcon2 },
+  { id: 3, name: "Жим лежа - нижний блок", icon: ChestIcon3 },
+  { id: 4, name: "Жим лежа - тренажер Смита", icon: ChestIcon4 },
+  { id: 5, name: "Жим лежа (наклон) - штанга", icon: ChestIcon5 },
+];
+
+const RecentExercisesPage: React.FC = () => {
+  const [recentExercises] = useState<RecentExercise[]>(mockRecentExercises);
   const [showSnackbar, setShowSnackbar] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
-  const [loading, setLoading] = useState(true);
-  
-  const accessToken = useAuthStore((state) => state._accessToken);
-  const isAuth = useAuthStore((state) => state.isAuth);
 
-  useEffect(() => {
-    if (isAuth && accessToken) {
-      fetchExercises();
-    } else if (!isAuth) {
-      setLoading(false);
-    }
-  }, [isAuth, accessToken]);
-
-  const fetchExercises = async () => {
-    setLoading(true);
-    try {
-      const response = await fetch('/api/v1/exercises/', {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${accessToken}`,
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setExercises(data);
-      } else if (response.status === 401) {
-        setSnackbarMessage('❌ Сессия истекла, войдите заново');
-        setShowSnackbar(true);
-        setTimeout(() => setShowSnackbar(false), 3000);
-      } else {
-        setSnackbarMessage('❌ Ошибка загрузки упражнений');
-        setShowSnackbar(true);
-        setTimeout(() => setShowSnackbar(false), 3000);
-      }
-    } catch (error) {
-      console.error('Error fetching exercises:', error);
-      setSnackbarMessage('❌ Ошибка соединения с сервером');
-      setShowSnackbar(true);
-      setTimeout(() => setShowSnackbar(false), 3000);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleExerciseClick = (exercise: Exercise) => {
-    // Можно просто показывать информацию об упражнении
-    setSnackbarMessage(`📋 ${exercise.name} — ${exercise.muscle_group_name}`);
+  const handleExerciseClick = (exercise: RecentExercise) => {
+    setSnackbarMessage(`✅ ${exercise.name} добавлено в Мой аккаунт`);
     setShowSnackbar(true);
     setTimeout(() => setShowSnackbar(false), 2000);
   };
 
-  if (loading) {
-    return (
-      <div className="recent-exercises-container">
-        <div className="loading-spinner">Загрузка упражнений...</div>
-      </div>
-    );
-  }
+  const goToExercisesPage = () => {
+    window.location.href = '/exercises';
+  };
 
   return (
     <div className="recent-exercises-container">
       <div className="recent-exercises-header">
-        <h1 className="recent-exercises-title">Упражнения</h1>
+        <button onClick={goToExercisesPage} className="back-button">
+          ←
+        </button>
+        <h1 className="recent-exercises-title">Недавние упражнения</h1>
       </div>
 
-      {exercises.length === 0 ? (
-        <div className="empty-state">
-          <p>Упражнения пока не добавлены</p>
-          <p className="empty-state-hint">Обратитесь к администратору</p>
-        </div>
-      ) : (
-        <div className="recent-exercises-list">
-          {exercises.map((exercise) => (
-            <div
-              key={exercise.id}
-              onClick={() => handleExerciseClick(exercise)}
-              className="recent-exercise-item"
-            >
-              <div className="exercise-name">{exercise.name}</div>
-              <div className="exercise-meta">
-                <span className="last-used">💪 {exercise.muscle_group_name}</span>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
+      <div className="recent-exercises-list">
+        {recentExercises.map((exercise) => (
+          <div
+            key={exercise.id}
+            onClick={() => handleExerciseClick(exercise)}
+            className="recent-exercise-item"
+          >
+            <img src={exercise.icon} alt="icon" className="exercise-icon" />
+            <span className="exercise-name">{exercise.name}</span>
+          </div>
+        ))}
+      </div>
 
       {showSnackbar && (
         <div className="snackbar">
@@ -113,4 +68,4 @@ const ExercisesPage: React.FC = () => {
   );
 };
 
-export default ExercisesPage;
+export default RecentExercisesPage;

@@ -71,6 +71,7 @@ function App() {
             />
 
             <Route path="/logout" element={<LogoutRoute />} />
+            <Route path="/my-exercises" element={<RecentExercisesPage />} />
 
             {/* Все защищённые роуты в одном месте */}
             <Route element={<ProtectedLayout />}>
