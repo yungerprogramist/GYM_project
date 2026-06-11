@@ -8,6 +8,7 @@ from django.conf.urls.static import static
 from rest_framework_simplejwt.views import TokenRefreshView
 from django.conf import settings
 from .admin_views import model_diagram
+from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 
 from calendar_custom.views import (
     CalendarView,
@@ -33,4 +34,6 @@ urlpatterns = [
     path('api/v1/statistics/period/', StatisticsPeriodView.as_view()),
     path('api/v1/exercises/recent/', RecentExerciseView.as_view()),
     path('api/v1/exercises/recent/update/', RecentExerciseUpdateView.as_view()),
+    path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
+    path('api/docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
