@@ -24,6 +24,44 @@
     { "name": "RecentExercises", "description": "Недавние упражнения" }
   ],
   "paths": {
+    "/api/v1/users/refresh/": {
+      "post": {
+        "summary": "Обновить access-токен",
+        "tags": ["Users"],
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "refresh": { "type": "string" }
+                },
+                "required": ["refresh"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Новая пара токенов",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "access": { "type": "string" },
+                    "refresh": { "type": "string" }
+                  }
+                }
+              }
+            }
+          },
+          "401": { "description": "Невалидный или просроченный refresh" }
+        }
+      }
+    },
     "/api/v1/programs/": {
       "get": {
         "summary": "Список программ тренировок",

@@ -12,11 +12,11 @@ class User(AbstractUser):
         verbose_name_plural = 'Users'
 
 
-
 class UserProfile(models.Model):
+    language = models.CharField(max_length=10, default='en')
+    theme = models.CharField(max_length=20, default='light')
+
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    language = models.CharField(max_length=10, default="en")
-    theme = models.CharField(max_length=20, default="light")
 
     def __str__(self):
         return self.user.username

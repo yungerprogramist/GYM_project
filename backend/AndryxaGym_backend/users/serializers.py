@@ -7,16 +7,18 @@ User = get_user_model()
 
 class UserRegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, min_length=6)
+    email = serializers.EmailField(required=False, allow_blank=True)
 
     class Meta:
         model = User
-        fields = ['username', 'email', 'password']
+        fields = ['username', 'email', 'password'] 
 
     def create(self, validated_data):
+        email = validated_data.get('email', '')
         user = User.objects.create_user(
             username=validated_data['username'],
-            email=validated_data.get('email'),
-            password=validated_data['password']
+            email=email if email else '',
+            password=validated_data['password'],
         )
         return user
 
@@ -34,8 +36,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
-    profile = UserProfileSerializer(read_only=True)
-
+    profile = UserProfileSerializer(source='userprofile', read_only=True)
     class Meta:
         model = User
         fields = ['id', 'username', 'email', 'first_name', 'last_name', 'profile']
