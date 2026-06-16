@@ -8,12 +8,12 @@ User = get_user_model()
 
 class WeightRecord(models.Model):
     user = models.ForeignKey(
-    User,
-    on_delete=models.CASCADE,
-    related_name='weight_records',
-    verbose_name='User',
-    null=True,
-    blank=True
+        User,
+        on_delete=models.CASCADE,
+        related_name='weight_records',
+        verbose_name='User',
+        null=True,
+        blank=True
     )
     date = models.DateField(
         default=timezone.now,
