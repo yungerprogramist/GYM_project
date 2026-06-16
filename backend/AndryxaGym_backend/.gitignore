@@ -20,10 +20,7 @@ local_settings.py
 db.sqlite3
 media/
 staticfiles/
-migrations/
-**/migrations/*.py
-!**/migrations/__init__.py
-**/migrations/*.pyc
+
 
 # --- IDE и ОС ---
 .idea/
@@ -41,5 +38,3 @@ htmlcov/
 .tox/
 .mypy_cache/
 .ruff_cache/
-
-.migrations
