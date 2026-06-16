@@ -36,7 +36,6 @@ INSTALLED_APPS = [
     'workouts',
     'programs.apps.ProgramsConfig',
     'calendar_custom',
-    # 'calendar_custom.apps.CalendarCustomConfig'
 ]
 
 AUTH_USER_MODEL = 'users.User'
@@ -155,6 +154,5 @@ LOGGING = {
 
 SPECTACULAR_SETTINGS = {
     'TITLE': 'AndryxaGym API',
-    'DESCRIPTION': 'API для сайта тренировок',
     'VERSION': '1.0.0',
 }
