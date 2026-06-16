@@ -103,7 +103,6 @@ const TrainingPrograms = () => {
       const response = await getPrograms();
       
       if (response.status === 200) {
-        // ✅ Бэкенд ответил успешно
         if (response.data.length > 0) {
           setPrograms(response.data);
         } else {
@@ -159,7 +158,7 @@ const TrainingPrograms = () => {
         <Box sx={{ p: 3, bgcolor: 'white', borderRadius: '16px' }}>
           <Typography variant="h6" gutterBottom>О программе</Typography>
           
-          {/* Добавлено отображение description из бэкенда */}
+          {/* Отображение description*/}
           {program.description ? (
             <Typography variant="body2" sx={{ color: 'text.secondary', mb: 2, whiteSpace: 'pre-line' }}>
               {program.description}
