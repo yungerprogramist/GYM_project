@@ -18,17 +18,18 @@ import imgLorenc from './image/lorenc.jpg';
 import img12Nedel from './image/12nedel.jpg';
 import imgFullbody from './image/fullbody.png';
 
+// API сервис
 import { getPrograms, type Program } from '../../shared/api/endpoints/training-programs';
 
-// Мок-данные на резерв 
+// Мок-данные 
 const mockPrograms: Program[] = [
-  { id: '1', name: '10-недельная программа на массу', difficulty: 'Продвинутый', image: img10Nedel },
-  { id: '2', name: 'Программа с гантелями для дома и зала', difficulty: 'Начинающий', image: imgGanteli },
-  { id: '3', name: '4-дневный сплит "Сила, Мышцы и Огонь"', difficulty: 'Средний', image: img4Dnya },
-  { id: '4', name: 'Программа набора массы для эктоморфа', difficulty: 'Начинающий', image: img10Nedel },
-  { id: '5', name: '5-дневная программа Дуга Лоренса', difficulty: 'Средний', image: imgLorenc },
-  { id: '6', name: '12-недельная программа тренировок для новичков', difficulty: 'Начинающий', image: img12Nedel },
-  { id: '7', name: 'Программа Фулбоди на силу', difficulty: 'Продвинутый', image: imgFullbody },
+  { id: '1', name: '10-недельная программа на массу', difficulty: 'Продвинутый', image: img10Nedel, description: '', daysCount: 0 },
+  { id: '2', name: 'Программа с гантелями для дома и зала', difficulty: 'Начинающий', image: imgGanteli, description: '', daysCount: 0 },
+  { id: '3', name: '4-дневный сплит "Сила, Мышцы и Огонь"', difficulty: 'Средний', image: img4Dnya, description: '', daysCount: 0 },
+  { id: '4', name: 'Программа набора массы для эктоморфа', difficulty: 'Начинающий', image: img10Nedel, description: '', daysCount: 0 },
+  { id: '5', name: '5-дневная программа Дуга Лоренса', difficulty: 'Средний', image: imgLorenc, description: '', daysCount: 0 },
+  { id: '6', name: '12-недельная программа тренировок для новичков', difficulty: 'Начинающий', image: img12Nedel, description: '', daysCount: 0 },
+  { id: '7', name: 'Программа Фулбоди на силу', difficulty: 'Продвинутый', image: imgFullbody, description: '', daysCount: 0 },
 ];
 
 const difficultyColors: Record<Program['difficulty'], { bg: string; color: string }> = {
@@ -37,7 +38,7 @@ const difficultyColors: Record<Program['difficulty'], { bg: string; color: strin
   'Продвинутый': { bg: '#fce4ec', color: '#c62828' },
 };
 
-// Карточка программы
+// Карточка программы 
 const ProgramCard = ({ program, onClick }: { program: Program; onClick: (id: string) => void }) => (
   <Card 
     onClick={() => onClick(program.id)} 
@@ -69,6 +70,12 @@ const ProgramCard = ({ program, onClick }: { program: Program; onClick: (id: str
         <Typography variant="body1" sx={{ fontWeight: 600, fontSize: '0.95rem', lineHeight: 1.3, mb: 1, textShadow: '1px 1px 2px rgba(0,0,0,0.5)' }}>
           {program.name}
         </Typography>
+        {/* Отображение дней */}
+        {program.daysCount && (
+          <Typography variant="caption" sx={{ display: 'block', mb: 1, opacity: 0.9 }}>
+            {program.daysCount} {program.daysCount === 1 ? 'день' : program.daysCount < 5 ? 'дня' : 'дней'}
+          </Typography>
+        )}
         <Chip label={program.difficulty} size="small" sx={{ 
           bgcolor: difficultyColors[program.difficulty].bg, 
           color: difficultyColors[program.difficulty].color, 
@@ -85,25 +92,32 @@ const TrainingPrograms = () => {
   const [programs, setPrograms] = useState<Program[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isNetworkError, setIsNetworkError] = useState(false); // Флаг для отличия ошибки сети от пустого списка
 
   useEffect(() => {
     const loadPrograms = async () => {
       setLoading(true);
       setError(null);
+      setIsNetworkError(false);
       
       const response = await getPrograms();
       
-      if (response.status === 200 && response.data.length > 0) {
-        setPrograms(response.data);
+      if (response.status === 200) {
+        if (response.data.length > 0) {
+          setPrograms(response.data);
+        } else {
+          // Показываем текст "Программ пока нет"
+          setPrograms([]);
+        }
       } else if (response.status === 401) {
         setError('Требуется авторизация');
-        setPrograms(mockPrograms);
+        setIsNetworkError(true);
+        setPrograms(mockPrograms); //Только при ошибке авторизации показываем мок
       } else {
-        // Если 500 или пустой массив, то показываем мок-данные
+        // Ошибка сервера/сети — мок-данные
+        setIsNetworkError(true);
         setPrograms(mockPrograms);
-        if (response.status !== 200) {
-          setError('Не удалось загрузить программы. Показаны демо-данные.');
-        }
+        setError('Не удалось загрузить программы. Показаны демо-данные.');
       }
       
       setLoading(false);
@@ -112,7 +126,7 @@ const TrainingPrograms = () => {
     loadPrograms();
   }, []);
 
-  // Детали программы
+  // Детали программы 
   if (selectedId) {
     const program = programs.find(p => p.id === selectedId);
     if (!program) {
@@ -143,11 +157,21 @@ const TrainingPrograms = () => {
         
         <Box sx={{ p: 3, bgcolor: 'white', borderRadius: '16px' }}>
           <Typography variant="h6" gutterBottom>О программе</Typography>
-          <Typography variant="body2" sx={{ color: 'text.secondary', mb: 1 }}>
-            Подробное описание программы "{program.name}". Эта программа рассчитана на {program.difficulty.toLowerCase()} уровень подготовки.
-          </Typography>
+          
+          {/* Отображение description*/}
+          {program.description ? (
+            <Typography variant="body2" sx={{ color: 'text.secondary', mb: 2, whiteSpace: 'pre-line' }}>
+              {program.description}
+            </Typography>
+          ) : (
+            <Typography variant="body2" sx={{ color: 'text.secondary', mb: 2 }}>
+              Описание отсутствует.
+            </Typography>
+          )}
+          
           <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-            Включает в себя комплекс упражнений для достижения максимальных результатов. Рекомендуемая частота тренировок: 3-4 раза в неделю.
+            Эта программа рассчитана на {program.difficulty.toLowerCase()} уровень подготовки.
+            {program.daysCount && ` Количество тренировочных дней: ${program.daysCount}.`}
           </Typography>
         </Box>
       </Box>
@@ -167,13 +191,18 @@ const TrainingPrograms = () => {
   // Список
   return (
     <Box sx={{ bgcolor: '#f5f5f5', py: 4, px: { xs: 2, sm: 3, md: 4 } }}>
-      {error && <Alert severity="warning" sx={{ mb: 3 }} onClose={() => setError(null)}>{error}</Alert>}
+      {error && <Alert severity={isNetworkError ? "warning" : "info"} sx={{ mb: 3 }} onClose={() => setError(null)}>{error}</Alert>}
       
       <Typography variant="h4" sx={{ mb: 4, fontWeight: 'bold' }}>Программы тренировок</Typography>
       
       {programs.length === 0 ? (
+        // Текст когда действительно ошибка
         <Box sx={{ textAlign: 'center', py: 8 }}>
-          <Typography variant="body1" color="text.secondary">Программ пока нет. Добавьте их через админ-панель.</Typography>
+          <Typography variant="body1" color="text.secondary">
+            {isNetworkError 
+              ? 'Демо-данные временно недоступны.' 
+              : 'Программ пока нет. Добавьте их через админ-панель.'}
+          </Typography>
         </Box>
       ) : (
         <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)' }, gap: 3 }}>

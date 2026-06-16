@@ -1,20 +1,20 @@
-import { client } from '../client';
+import { authClient } from '../authClient';
 
 interface BackendProgramItem {
   id: number;
-  name: string;         
-  difficulty: string;    
-  description?: string;
-  days_count: number;
+  name: string;
+  difficulty: string;
+  description?: string;       
+  days_count: number;        
 }
 
-// Тип для UI
 export interface Program {
   id: string;
   name: string;
   difficulty: 'Начинающий' | 'Средний' | 'Продвинутый';
   image: string;
-  daysCount?: number;
+  description?: string;      
+  daysCount?: number;       
 }
 
 export type GetProgramsResponse =
@@ -22,7 +22,6 @@ export type GetProgramsResponse =
   | { status: 401; data: { error: string } }
   | { status: 500; data: { message: string } };
 
-// Интеграция сложностей
 const mapDifficulty = (diff: string): Program['difficulty'] => {
   const map: Record<string, Program['difficulty']> = {
     beginner: 'Начинающий',
@@ -32,20 +31,19 @@ const mapDifficulty = (diff: string): Program['difficulty'] => {
   return map[diff] || 'Начинающий';
 };
 
-// Маппинг объекта
 const mapBackendToProgram = (backend: BackendProgramItem): Program => ({
   id: String(backend.id),
   name: backend.name,
   difficulty: mapDifficulty(backend.difficulty),
-  image: '', // бэк не отдаёт картинку в списке, компонент использует fallback
-  daysCount: backend.days_count,
+  image: '', // Бэкенд не отдаёт картинку в списке
+  description: backend.description, 
+  daysCount: backend.days_count,   
 });
 
-// Основная функция
 export async function getPrograms(): Promise<GetProgramsResponse> {
   try {
-    const response = await client.get<any>('programs/', {
-     validateStatus: (status: number) => status === 200 || status === 401,
+    const response = await authClient.get<any>('programs/', {  //Использование authclient
+      validateStatus: (status: number) => status === 200 || status === 401,
     });
 
     const items = response.data?.results ?? response.data;
