@@ -28,12 +28,13 @@ urlpatterns = [
     path('api/v1/workouts/', include('workouts.urls')),
     path('api/v1/users/', include('users.urls')),     
     path('api/v1/users/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('api/v1/exercises/recent/', RecentExerciseView.as_view()),
+    path('api/v1/exercises/recent/update/', RecentExerciseUpdateView.as_view()),
     path('api/v1/exercises/', include('exercises.urls')),
     path('api/v1/calendar/month/<int:year>/<int:month>/', CalendarView.as_view()),
     path('api/v1/statistics/summary/', StatisticsView.as_view()),
     path('api/v1/statistics/period/', StatisticsPeriodView.as_view()),
-    path('api/v1/exercises/recent/', RecentExerciseView.as_view()),
-    path('api/v1/exercises/recent/update/', RecentExerciseUpdateView.as_view()),
+
     
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
     path('api/docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),

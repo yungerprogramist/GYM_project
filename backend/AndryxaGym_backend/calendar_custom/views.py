@@ -6,7 +6,7 @@ from django.db.models.functions import TruncDay, TruncMonth
 from django.core.cache import cache
 from django.utils import timezone
 from datetime import timedelta
-
+from workouts.models import Set 
 from .models import RecentExercise
 from workouts.models import Workout, WorkoutExercise
 from exercises.models import Exercise
@@ -67,8 +67,14 @@ class StatisticsView(APIView):
         stats = workouts_qs.aggregate(
             total_exercises=Count('exercises', distinct=True),
             total_sets=Count('exercises__sets', distinct=True),
-            total_weight=Sum(F('exercises__sets__weight') * F('exercises__sets__reps'))
         )
+        
+        # Считаем тоннаж через Set напрямую
+        total_weight = Set.objects.filter(
+            workout_exercise__workout__user=user
+        ).aggregate(
+            total=Sum(F('weight') * F('reps'))
+        )['total'] or 0
         
         current_streak = 0
         dates = workouts_qs.values_list('date', flat=True).distinct().order_by('-date')
@@ -105,7 +111,7 @@ class StatisticsView(APIView):
         data = {
             'total_exercises': stats['total_exercises'] or 0,
             'total_sets': stats['total_sets'] or 0,
-            'total_weight': float(stats['total_weight'] or 0),
+            'total_weight': float(total_weight),
             'streaks': current_streak,
             'most_active_month': most_active_month,
             'most_common_exercise': most_common_exercise,
@@ -117,7 +123,6 @@ class StatisticsView(APIView):
         cache.set(cache_key, data, timeout=600)
         
         return Response(data)
-
 
 class StatisticsPeriodView(APIView):
     """
@@ -151,46 +156,61 @@ class StatisticsPeriodView(APIView):
             'days_count': (end_dt - start_dt).days + 1
         }
 
+        # Считаем тоннаж через Set напрямую (weight * reps)
+        total_weight = Set.objects.filter(
+            workout_exercise__workout__user=user,
+            workout_exercise__workout__date__range=[start_dt, end_dt]
+        ).aggregate(
+            total=Sum(F('weight') * F('reps'))
+        )['total'] or 0
+
         totals = qs.aggregate(
             total_workouts=Count('id', distinct=True),
             total_exercises=Count('exercises', distinct=True),
             total_sets=Count('exercises__sets', distinct=True),
-            total_weight=Sum(F('exercises__sets__weight') * F('exercises__sets__reps'))
         )
-        
+        totals['total_weight'] = float(total_weight)
         totals = {k: (v if v is not None else 0) for k, v in totals.items()}
-        totals['total_weight'] = float(totals['total_weight'])
 
+        # Группировка по дням
         daily_stats = qs.annotate(
             day=TruncDay('date')
         ).values('day').annotate(
             count=Count('id', distinct=True),
             exercises=Count('exercises', distinct=True),
-            weight=Sum(F('exercises__sets__weight') * F('exercises__sets__reps'))
         ).order_by('day')
 
+        # Считаем вес для каждого дня отдельно
         workouts_per_day = {}
         for item in daily_stats:
-            key = item['day'].strftime('%Y-%m-%d')
+            day = item['day']
+            day_weight = Set.objects.filter(
+                workout_exercise__workout__user=user,
+                workout_exercise__workout__date=day
+            ).aggregate(
+                total=Sum(F('weight') * F('reps'))
+            )['total'] or 0
+            
+            key = day.strftime('%Y-%m-%d')
             workouts_per_day[key] = {
                 'workouts': item['count'],
                 'exercises': item['exercises'],
-                'weight': float(item['weight'] or 0)
+                'weight': float(day_weight)
             }
 
+        # Тренд
         period_length = (end_dt - start_dt).days + 1
         prev_start = start_dt - timedelta(days=period_length)
         prev_end = start_dt - timedelta(days=1)
         
-        prev_qs = Workout.objects.filter(
-            user=user,
-            date__range=[prev_start, prev_end]
-        )
+        prev_weight = Set.objects.filter(
+            workout_exercise__workout__user=user,
+            workout_exercise__workout__date__range=[prev_start, prev_end]
+        ).aggregate(
+            total=Sum(F('weight') * F('reps'))
+        )['total'] or 0
         
         current_weight = totals['total_weight']
-        prev_weight = prev_qs.aggregate(
-            w=Sum(F('exercises__sets__weight') * F('exercises__sets__reps'))
-        )['w'] or 0
         
         if prev_weight > 0:
             trend_percent = round(((current_weight - prev_weight) / prev_weight) * 100, 2)
