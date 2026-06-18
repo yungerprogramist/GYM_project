@@ -9,6 +9,12 @@ services:
       - ../backend:/app
     environment:
       - PYTHONUNBUFFERED=1
+      - DJANGO_SUPERUSER_USERNAME=admin
+      - DJANGO_SUPERUSER_PASSWORD=admin
+    command: >
+      sh -c "python AndryxaGym_backend/manage.py migrate &&
+            python AndryxaGym_backend/manage.py createsuperuser --noinput || true &&
+            python AndryxaGym_backend/manage.py runserver 0.0.0.0:8000"
     networks:
       - app-network
 
