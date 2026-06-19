@@ -13,8 +13,11 @@ class User(AbstractUser):
 
 
 class UserProfile(models.Model):
-    language = models.CharField(max_length=10, default='en')
-    theme = models.CharField(max_length=20, default='light')
+    LANGUAGE_CHOICES = [('en', 'English'), ('ru', 'Russian')]
+    THEME_CHOICES = [('light', 'Light'), ('dark', 'Dark')]
+
+    language = models.CharField(max_length=10, default='en', choices=LANGUAGE_CHOICES)
+    theme = models.CharField(max_length=20, default='light', choices=THEME_CHOICES)
 
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
