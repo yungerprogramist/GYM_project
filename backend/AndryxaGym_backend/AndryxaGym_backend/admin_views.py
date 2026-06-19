@@ -15,6 +15,11 @@ def model_diagram(request):
             'fields': ['id', 'user', 'language', 'theme'],
             'relations': []
         },
+        'Note': {
+            'color': '#9B59B6',
+            'fields': ['id', 'user', 'content', 'updated_at'],
+            'relations': []
+        },
         'MuscleGroup': {
             'color': '#E8A838',
             'fields': ['id', 'name'],
@@ -23,6 +28,11 @@ def model_diagram(request):
         'Exercise': {
             'color': '#E86B38',
             'fields': ['id', 'name', 'description', 'image', 'muscle_group'],
+            'relations': []
+        },
+        'RecentExercise': {
+            'color': '#D35400',
+            'fields': ['id', 'user', 'exercise', 'last_used'],
             'relations': []
         },
         'Program': {
@@ -38,6 +48,11 @@ def model_diagram(request):
         'ProgramDayExercise': {
             'color': '#2E8B57',
             'fields': ['id', 'program_day', 'exercise', 'exercise_order'],
+            'relations': []
+        },
+        'WeightRecord': {
+            'color': '#5DADE2',
+            'fields': ['id', 'user', 'date', 'weight', 'comment', 'created_at'],
             'relations': []
         },
         'Workout': {
