@@ -19,8 +19,9 @@ from calendar_custom.views import (
 )
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
     path('admin/model-diagram/', model_diagram, name='model-diagram'),
+    path('admin/', admin.site.urls),
+
     
     path('api/v1/notes/', include('notes.urls')),
     path('api/v1/measurements/', include('measurements.urls')),
