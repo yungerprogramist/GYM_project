@@ -9,12 +9,7 @@ services:
       - ../backend:/app
     environment:
       - PYTHONUNBUFFERED=1
-      - DJANGO_SUPERUSER_USERNAME=admin
-      - DJANGO_SUPERUSER_PASSWORD=admin
-    command: >
-      sh -c "python AndryxaGym_backend/manage.py migrate &&
-            python AndryxaGym_backend/manage.py createsuperuser --noinput || true &&
-            python AndryxaGym_backend/manage.py runserver 0.0.0.0:8000"
+      - DJANGO_SETTINGS_MODULE=AndryxaGym_backend.settings_docker
     networks:
       - app-network
 
@@ -33,7 +28,6 @@ services:
       - WATCHPACK_POLLING=true
       - HOST=0.0.0.0
       - PORT=3000
-      - REACT_APP_API_URL=http://backend:8000
     networks:
       - app-network
 
