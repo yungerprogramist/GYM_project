@@ -697,14 +697,11 @@
           },
           "401": { "description": "Не авторизован" }
         }
-      }
-    },
-    "/api/v1/notes/{id}/": {
+      },
       "put": {
         "summary": "Обновить заметку",
         "tags": ["Notes"],
         "security": [{ "bearerAuth": [] }],
-        "parameters": [{ "$ref": "#/components/parameters/id" }],
         "requestBody": {
           "required": true,
           "content": {
@@ -730,7 +727,6 @@
         "summary": "Удалить заметку",
         "tags": ["Notes"],
         "security": [{ "bearerAuth": [] }],
-        "parameters": [{ "$ref": "#/components/parameters/id" }],
         "responses": {
           "204": { "description": "Удалено" },
           "401": { "description": "Не авторизован" }
@@ -1421,6 +1417,7 @@
       "UserSettings": {
         "type": "object",
         "properties": {
+          "id": { "type": "integer", "readOnly": true },
           "language": { "type": "string", "example": "en" },
           "theme": { "type": "string", "example": "light" }
         }
