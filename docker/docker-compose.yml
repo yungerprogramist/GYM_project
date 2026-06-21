@@ -1,0 +1,36 @@
+services:
+  backend:
+    build:
+      context: ../
+      dockerfile: docker/Dockerfile.backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ../backend:/app
+    environment:
+      - PYTHONUNBUFFERED=1
+      - DJANGO_SETTINGS_MODULE=AndryxaGym_backend.settings_docker
+    networks:
+      - app-network
+
+  frontend:
+    build:
+      context: ../
+      dockerfile: docker/Dockerfile.frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    volumes:
+      - ../frontend:/app
+      - /app/node_modules
+    environment:
+      - WATCHPACK_POLLING=true
+      - HOST=0.0.0.0
+      - PORT=3000
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge

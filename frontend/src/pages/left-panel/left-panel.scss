@@ -96,6 +96,9 @@
   font-size: 16px;
   font-weight: 500;
   letter-spacing: 0.3px;
+  line-height: 1.2;
+  flex: 1; // ← занимает все оставшееся место
+  text-align: left; // ← принудительное выравнивание влево
 }
 
 // Зеленая полоска-разделитель

@@ -19,5 +19,5 @@ class CustomUserAdmin(UserAdmin):
     def get_readonly_fields(self, request, obj=None):
         # Обычный staff не может менять права доступа
         if not request.user.is_superuser:
-            return ['is_superuser', 'user_permissions', 'groups']
+            return ['is_superuser', 'user_permissions', 'groups', 'is_staff']
         return []

@@ -21,9 +21,54 @@
     { "name": "Programs", "description": "Программы тренировок" },
     { "name": "Calendar", "description": "Календарь тренировок" },
     { "name": "Statistics", "description": "Статистика тренировок" },
-    { "name": "RecentExercises", "description": "Недавние упражнения" }
+    { "name": "RecentExercises", "description": "Недавние упражнения" },
+    { "name": "Measurements", "description": "Измерения веса" }
   ],
   "paths": {
+    "/api/v1/measurements/weight/": {
+      "get": {
+        "summary": "Список записей веса",
+        "tags": ["Measurements"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          { "name": "period", "in": "query", "description": "Фильтр: week, month, quarter, year, custom", "schema": { "type": "string", "enum": ["week", "month", "quarter", "year", "custom"] } },
+          { "name": "date_from", "in": "query", "description": "Начальная дата (для custom)", "schema": { "type": "string", "format": "date" } },
+          { "name": "date_to", "in": "query", "description": "Конечная дата (для custom)", "schema": { "type": "string", "format": "date" } },
+          { "name": "ordering", "in": "query", "description": "Сортировка (date, weight)", "schema": { "type": "string" } },
+          { "name": "page", "in": "query", "description": "Страница", "schema": { "type": "integer" } }
+        ],
+        "responses": { "200": { "description": "Успешно", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/PaginatedWeightRecordList" } } } } }
+      },
+      "post": {
+        "summary": "Добавить запись веса",
+        "tags": ["Measurements"],
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/WeightRecordWrite" } } } },
+        "responses": { "201": { "description": "Создано", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/WeightRecord" } } } }, "400": { "description": "Ошибка валидации" } }
+      }
+    },
+    "/api/v1/measurements/weight/{id}/": {
+      "get": { "summary": "Получить запись", "tags": ["Measurements"], "security": [{ "bearerAuth": [] }], "parameters": [{ "$ref": "#/components/parameters/id" }], "responses": { "200": { "description": "Успешно", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/WeightRecord" } } } } } },
+      "put": { "summary": "Обновить запись", "tags": ["Measurements"], "security": [{ "bearerAuth": [] }], "parameters": [{ "$ref": "#/components/parameters/id" }], "requestBody": { "content": { "application/json": { "schema": { "$ref": "#/components/schemas/WeightRecordWrite" } } } }, "responses": { "200": { "description": "Обновлено" } } },
+      "patch": { "summary": "Частично обновить", "tags": ["Measurements"], "security": [{ "bearerAuth": [] }], "parameters": [{ "$ref": "#/components/parameters/id" }], "requestBody": { "content": { "application/json": { "schema": { "$ref": "#/components/schemas/WeightRecordWrite" } } } }, "responses": { "200": { "description": "Обновлено" } } },
+      "delete": { "summary": "Удалить запись", "tags": ["Measurements"], "security": [{ "bearerAuth": [] }], "parameters": [{ "$ref": "#/components/parameters/id" }], "responses": { "204": { "description": "Удалено" } } }
+    },
+    "/api/v1/measurements/weight/{id}/update_comment/": {
+      "patch": { "summary": "Обновить комментарий", "tags": ["Measurements"], "security": [{ "bearerAuth": [] }], "parameters": [{ "$ref": "#/components/parameters/id" }], "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "properties": { "comment": { "type": "string" } }, "required": ["comment"] } } } }, "responses": { "200": { "description": "Комментарий обновлён" } } }
+    },
+    "/api/v1/measurements/weight/{id}/delete_weight/": {
+      "delete": { "summary": "Удалить с подтверждением", "tags": ["Measurements"], "security": [{ "bearerAuth": [] }], "parameters": [{ "$ref": "#/components/parameters/id" }], "responses": { "200": { "description": "Запись удалена" } } }
+    },
+    "/api/v1/measurements/weight/stats/": {
+      "get": { "summary": "Статистика веса", "tags": ["Measurements"], "security": [{ "bearerAuth": [] }], "responses": { "200": { "description": "Успешно", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/WeightStats" } } } } } }
+    },
+    "/api/v1/measurements/weight/chart-data/": {
+      "get": { "summary": "Данные для графика", "tags": ["Measurements"], "security": [{ "bearerAuth": [] }], "parameters": [
+        { "name": "period", "in": "query", "schema": { "type": "string", "enum": ["week", "month", "quarter", "year", "custom"] } },
+        { "name": "date_from", "in": "query", "schema": { "type": "string", "format": "date" } },
+        { "name": "date_to", "in": "query", "schema": { "type": "string", "format": "date" } }
+      ], "responses": { "200": { "description": "Массив точек", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/WeightChartPoint" } } } } } } }
+    },
     "/api/v1/users/refresh/": {
       "post": {
         "summary": "Обновить access-токен",
@@ -652,14 +697,11 @@
           },
           "401": { "description": "Не авторизован" }
         }
-      }
-    },
-    "/api/v1/notes/{id}/": {
+      },
       "put": {
         "summary": "Обновить заметку",
         "tags": ["Notes"],
         "security": [{ "bearerAuth": [] }],
-        "parameters": [{ "$ref": "#/components/parameters/id" }],
         "requestBody": {
           "required": true,
           "content": {
@@ -685,7 +727,6 @@
         "summary": "Удалить заметку",
         "tags": ["Notes"],
         "security": [{ "bearerAuth": [] }],
-        "parameters": [{ "$ref": "#/components/parameters/id" }],
         "responses": {
           "204": { "description": "Удалено" },
           "401": { "description": "Не авторизован" }
@@ -1057,6 +1098,11 @@
       }
     },
     "schemas": {
+      "WeightRecord": { "type": "object", "properties": { "id": { "type": "integer", "readOnly": true }, "user": { "type": "integer", "readOnly": true, "nullable": true }, "date": { "type": "string", "format": "date" }, "weight": { "type": "string", "format": "decimal" }, "comment": { "type": "string", "nullable": true }, "created_at": { "type": "string", "format": "date-time", "readOnly": true } } },
+      "WeightRecordWrite": { "type": "object", "properties": { "date": { "type": "string", "format": "date" }, "weight": { "type": "number" }, "comment": { "type": "string", "nullable": true } }, "required": ["date", "weight"] },
+      "PaginatedWeightRecordList": { "type": "object", "properties": { "count": { "type": "integer" }, "next": { "type": "string", "nullable": true }, "previous": { "type": "string", "nullable": true }, "results": { "type": "array", "items": { "$ref": "#/components/schemas/WeightRecord" } } } },
+      "WeightStats": { "type": "object", "properties": { "current_weight": { "type": "number" }, "min_weight": { "type": "number" }, "max_weight": { "type": "number" }, "avg_weight": { "type": "number" }, "total_records": { "type": "integer" }, "weight_change": { "type": "number" } } },
+      "WeightChartPoint": { "type": "object", "properties": { "date": { "type": "string", "format": "date" }, "weight": { "type": "number" } } },
       "ProgramList": {
         "type": "object",
         "properties": {
@@ -1371,6 +1417,7 @@
       "UserSettings": {
         "type": "object",
         "properties": {
+          "id": { "type": "integer", "readOnly": true },
           "language": { "type": "string", "example": "en" },
           "theme": { "type": "string", "example": "light" }
         }

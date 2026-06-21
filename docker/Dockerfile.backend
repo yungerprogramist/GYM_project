@@ -1,0 +1,12 @@
+FROM python:3.12-slim
+
+WORKDIR /app
+
+COPY backend/ .
+
+RUN pip install --no-cache-dir -r AndryxaGym_backend/requirements.txt
+
+COPY docker/entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+ENTRYPOINT ["/entrypoint.sh"]

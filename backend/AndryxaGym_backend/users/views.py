@@ -125,15 +125,8 @@ class UserSettingsView(APIView):
         })
 
     def patch(self, request):
-        profile = self.get_object(request.user)
-
-        if "language" in request.data:
-            profile.language = request.data["language"]
-        if "theme" in request.data:
-            profile.theme = request.data["theme"]
-
-        profile.save()
-        return Response({
-            "language": profile.language,
-            "theme": profile.theme
-        })
+            profile = self.get_object(request.user)
+            serializer = UserProfileSerializer(profile, data=request.data, partial=True)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data)

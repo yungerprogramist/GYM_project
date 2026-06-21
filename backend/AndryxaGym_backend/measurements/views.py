@@ -1,6 +1,7 @@
 from rest_framework import viewsets, status, filters
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
 from django.db.models import Avg, Max, Min, Count
 from django.utils import timezone
 from datetime import timedelta
@@ -14,15 +15,13 @@ from .serializers import (
 
 class WeightRecordViewSet(viewsets.ModelViewSet):
     serializer_class = WeightRecordSerializer
-    permission_classes = []
+    permission_classes = [IsAuthenticated]
     filter_backends = [filters.OrderingFilter]
     ordering_fields = ['date', 'weight', 'created_at']
     ordering = ['-date']
 
     def get_queryset(self):
-        queryset = WeightRecord.objects.all()
-        if self.request.user.is_authenticated:
-            queryset = queryset.filter(user=self.request.user)
+        queryset = WeightRecord.objects.filter(user=self.request.user)
 
         period = self.request.query_params.get('period', None)
         if period:
@@ -50,38 +49,7 @@ class WeightRecordViewSet(viewsets.ModelViewSet):
         return queryset
 
     def perform_create(self, serializer):
-        if self.request.user.is_authenticated:
-            serializer.save(user=self.request.user)
-        else:
-            serializer.save()
-
-    @action(detail=True, methods=['patch'])
-    def update_comment(self, request, pk=None):
-        """PATCH /api/measurements/weight/{id}/update_comment/ — обновить только комментарий"""
-        record = self.get_object()
-        comment = request.data.get('comment', None)
-
-        if comment is None:
-            return Response(
-                {'error': 'Поле comment обязательно'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-
-        record.comment = comment
-        record.save()
-
-        serializer = self.get_serializer(record)
-        return Response(serializer.data)
-
-    @action(detail=True, methods=['delete'])
-    def delete_weight(self, request, pk=None):
-        """DELETE /api/measurements/weight/{id}/delete_weight/ — удалить запись с подтверждением"""
-        record = self.get_object()
-        record.delete()
-        return Response(
-            {'message': 'Запись веса удалена', 'id': int(pk)},
-            status=status.HTTP_200_OK
-        )
+        serializer.save(user=self.request.user)
 
     @action(detail=False, methods=['get'])
     def stats(self, request):
@@ -118,3 +86,26 @@ class WeightRecordViewSet(viewsets.ModelViewSet):
         chart_data = queryset.order_by('date').values('date', 'weight')
         serializer = ChartDataSerializer(chart_data, many=True)
         return Response(serializer.data)
+
+    @action(detail=True, methods=['patch'])
+    def update_comment(self, request, pk=None):
+        record = self.get_object()
+        comment = request.data.get('comment', None)
+        if comment is None:
+            return Response(
+                {'error': 'Comment is required'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        record.comment = comment
+        record.save()
+        serializer = self.get_serializer(record)
+        return Response(serializer.data)
+
+    @action(detail=True, methods=['delete'])
+    def delete_weight(self, request, pk=None):
+        record = self.get_object()
+        record.delete()
+        return Response(
+            {'message': 'Weight record deleted', 'id': int(pk)},
+            status=status.HTTP_200_OK
+        )
