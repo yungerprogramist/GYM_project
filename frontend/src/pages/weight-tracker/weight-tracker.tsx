@@ -22,7 +22,8 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from 'recharts';
-import { useDateStore } from '../right-column/selectedDay'
+import { useDateStore } from '../right-column/selectedDay';
+import { authClient } from '../../shared/api/authClient';
 import './weight-tracker.scss';
 
 // Тип данных записи замера
@@ -59,16 +60,27 @@ const WeightTracker: React.FC = () => {
   const selectedDate = useDateStore(state => state.selectedDateISO);
   const setShowCalendar = useDateStore((state) => state.setShowCalendar); // для включения календаря
 
+  const customGet = async (url: string) => {
+    return await authClient.get<any>(url);
+  }
+
+  const customPost = async (url: string, data: any) => {
+    return await authClient.post<any>(url, data);
+  }
+
+  const customPatch = async (url: string, data: any) => {
+    return await authClient.patch<any>(url, data);
+  }
+
+  const customDelete = async (url: string) => {
+    return await authClient.delete<any>(url);
+  }
+
   // 1. Получение списка записей веса (с пагинацией)
   const fetchWeightRecords = async () => {
     try {
-      const response = await fetch('/api/v1/measurements/weight/');
-      
-      if (!response.ok) {
-        throw new Error(`Ошибка HTTP: ${response.status}`);
-      }
-      
-      const data = await response.json();
+      const response = await customGet('/measurements/weight/');      
+      const data = response.data;
       console.log('Получены записи (с пагинацией):', data);
       
       // Бэкенд возвращает { count, next, previous, results }
@@ -114,13 +126,8 @@ const WeightTracker: React.FC = () => {
   // 2. Получение данных для графика (прямой массив)
   const fetchChartData = async (selectedPeriod: 'week' | 'month' | 'year') => {
     try {
-      const response = await fetch(`/api/v1/measurements/weight/chart_data/?period=${selectedPeriod}`);
-      
-      if (!response.ok) {
-        throw new Error(`Ошибка HTTP: ${response.status}`);
-      }
-      
-      const data = await response.json();
+      const response = await customGet(`/measurements/weight/chart_data/?period=${selectedPeriod}`);
+      const data = await response.data;
       console.log('Получены данные для графика (прямой массив):', data);
       
       // Для графика приходит прямой массив
@@ -204,19 +211,8 @@ const WeightTracker: React.FC = () => {
       if (comment !== null) {
         try {
           // Используем специальный эндпоинт для обновления комментария
-          const response = await fetch(`/api/v1/measurements/weight/${selectedRecordId}/update_comment/`, {
-            method: 'PATCH',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ comment: comment || '' }),
-          });
-          
-          if (!response.ok) {
-            throw new Error('Ошибка при добавлении комментария');
-          }
-          
-          const updatedRecord = await response.json();
+          const response = await customPatch(`/measurements/weight/${selectedRecordId}/update_comment/`, { comment: comment || '' });
+          const updatedRecord = response.data;
           setRecords(prevRecords =>
             prevRecords.map(record =>
               record.id === selectedRecordId 
@@ -245,19 +241,8 @@ const WeightTracker: React.FC = () => {
       if (!isNaN(newWeight) && newWeight > 0) {
         try {
           // Для редактирования веса используем стандартный PATCH к detail эндпоинту
-          const response = await fetch(`/api/v1/measurements/weight/${selectedRecordId}/`, {
-            method: 'PATCH',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ weight: newWeight }),
-          });
-          
-          if (!response.ok) {
-            throw new Error('Ошибка при редактировании веса');
-          }
-          
-          const updatedRecord = await response.json();
+          const response = await customPatch(`/measurements/weight/${selectedRecordId}/`, { weight: newWeight });
+          const updatedRecord = response.data;
           setRecords(prevRecords =>
             prevRecords.map(record =>
               record.id === selectedRecordId 
@@ -284,15 +269,8 @@ const WeightTracker: React.FC = () => {
       if (confirmDelete) {
         try {
           // Используем специальный эндпоинт для удаления
-          const response = await fetch(`/api/v1/measurements/weight/${selectedRecordId}/delete_weight/`, {
-            method: 'DELETE',
-          });
-          
-          if (!response.ok) {
-            throw new Error('Ошибка при удалении записи');
-          }
-          
-          const result = await response.json();
+          const response = await customDelete(`/measurements/weight/${selectedRecordId}/delete_weight/`); 
+          const result = response.data;
           console.log('Результат удаления:', result);
           
           setRecords(prevRecords => prevRecords.filter(record => record.id !== selectedRecordId));
@@ -328,19 +306,8 @@ const WeightTracker: React.FC = () => {
 
     try {
       // POST запрос вызовет perform_create в ViewSet, который сам обработает привязку к пользователю
-      const response = await fetch(`/api/v1/measurements/weight/`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(newRecord),
-      });
-
-      if (!response.ok) {
-        throw new Error('Ошибка при добавлении записи');
-      }
-
-      const createdRecord = await response.json();
+      const response = await customPost(`/measurements/weight/`, newRecord);
+      const createdRecord = response.data;
       
       const normalizedRecord = {
         ...createdRecord,
