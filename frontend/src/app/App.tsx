@@ -17,16 +17,11 @@ const ActionManagerPage = () => <h2>Управление действиями</h
 
 // Компонент для обработки logout
 const LogoutRoute = () => {
-  const navigate = useNavigate();
   const logout = useAuthStore((state) => state.logout);
 
   useEffect(() => {
-    const doLogout = async () => {
-      await logout();
-      navigate('/login', { replace: true });
-    };
-    doLogout();
-  }, [logout, navigate]);
+    logout();
+  }, [logout]);
 
   return <div>Выход из аккаунта...</div>;
 };
@@ -34,6 +29,11 @@ const LogoutRoute = () => {
 // Layout для защищённых страниц — проверка авторизации + Outlet
 const ProtectedLayout = () => {
   const isAuthenticated = useAuthStore(state => state.isAuth);
+  const loading = useAuthStore((state) => state.isAppLoading);
+
+  if (loading) {
+    return <div>Загрузка...</div>;
+  }
   
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
@@ -44,16 +44,11 @@ const ProtectedLayout = () => {
 
 function App() {
   const _initAuth = useAuthStore((state) => state._initAuth);
-  const loading = useAuthStore((state) => state.isAppLoading);
-  const isAuthenticated = useAuthStore(state => state.isAuth);
+  const isAuth = useAuthStore(state => state.isAuth);
 
   useEffect(() => {
     _initAuth();
   }, [_initAuth]);
-
-  if (loading) {
-    return <div>Загрузка...</div>;
-  }
 
   return (
     <BrowserRouter>
@@ -64,17 +59,18 @@ function App() {
             <Route 
               path="/login" 
               element={
-                isAuthenticated ? 
+                isAuth ? 
                 <Navigate to="/my-account" replace /> : 
                 <LoginPage />
               } 
             />
 
-            <Route path="/logout" element={<LogoutRoute />} />
+            {/* <Route path="/logout" element={<LogoutRoute />} /> */}
             <Route path="/my-exercises" element={<RecentExercisesPage />} />
 
             {/* Все защищённые роуты в одном месте */}
             <Route element={<ProtectedLayout />}>
+              <Route path="/logout" element={<LogoutRoute />} />
               <Route path="/recent-exercises" element={<RecentExercisesPage />} />
               <Route path="/weight-tracker" element={<WeightTracker />} />
               <Route path="/training-programs" element={<TrainingPrograms />} />
@@ -88,7 +84,7 @@ function App() {
             {/* Корневой редирект */}
             <Route 
               path="/" 
-              element={<Navigate to={isAuthenticated ? "/my-account" : "/login"} replace />} 
+              element={<Navigate to={isAuth ? "/my-account" : "/login"} replace />} 
             />
             
             <Route path="*" element={
