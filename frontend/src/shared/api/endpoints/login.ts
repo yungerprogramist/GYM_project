@@ -8,42 +8,41 @@ export interface LoginRequest {
 
 // Монолитный тип ответа
 export type LoginResponse =
-
   | {
-      status: 200;
-      data: {
-        message: string;
-        user: {
+    status: 200;
+    data: {
+      message: string;
+      user: {
+        id: number;
+        username: string;
+        email: string;
+        first_name: string;
+        last_name: string;
+        profile: {
           id: number;
-          username: string;
-          email: string;
-          first_name: string;
-          last_name: string;
-          profile: {
-            id: number;
-            language: string;
-            theme: string;
-          };
-        };
-        tokens: {
-          refresh: string;
-          access: string;
+          language: string;
+          theme: string;
         };
       };
-    }
-  | {
-      status: 401;
-      data: {
-        error: string; // "Неверный логин или пароль"
-      };
-    }
-
-  | {
-      status: 500;
-      data: {
-        message: string;
+      tokens: {
+        refresh: string;
+        access: string;
       };
     };
+  }
+  | {
+    status: 401;
+    data: {
+      error: string; // "Неверный логин или пароль"
+    };
+  }
+
+  | {
+    status: 500;
+    data: {
+      message: string;
+    };
+  };
 
 export async function loginUser(body: LoginRequest): Promise<LoginResponse> {
   try {

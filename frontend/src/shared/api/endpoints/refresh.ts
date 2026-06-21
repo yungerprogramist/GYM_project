@@ -7,27 +7,27 @@ export interface RefreshRequest {
 
 // Монолитный тип ответа
 export type RefreshResponse =
-
   | {
-      status: 200;
-      data: {
-        access: string;
-      };
-    }
-  | {
-      status: 401;
-      data: {
-        detail: string; // "Token is invalid or expired"
-        code: string;   // "token_not_valid"
-      };
-    }
-
-  | {
-      status: 500;
-      data: {
-        message: string;
-      };
+    status: 200;
+    data: {
+      access: string;
+      refresh: string;
     };
+  }
+  | {
+    status: 401;
+    data: {
+      detail: string; // "Token is invalid or expired"
+      code: string;   // "token_not_valid"
+    };
+  }
+
+  | {
+    status: 500;
+    data: {
+      message: string;
+    };
+  };
 
 export async function refreshTokens(body: RefreshRequest): Promise<RefreshResponse> {
   try {
