@@ -41,9 +41,10 @@ const REFRESH_TOKEN_KEY = 'rt';
 
 const useAuthStore = create<AuthState>((set, get) => {
   let currentRefreshPromise: Promise<"successful" | "refresh token outdated" | "server error"> | null = null;
+  let initAuthPromise: Promise<void> | null = null;
 
   return {
-    isAppLoading: false,
+    isAppLoading: true,
     isLoggingIn: false,
     isLoggingOut: false,
     isRegistering: false,
@@ -165,16 +166,23 @@ const useAuthStore = create<AuthState>((set, get) => {
     },
 
     _initAuth: async () => {
-      if (get().isAppLoading) return
-      console.log("начальная инициализация")
-      set({ isAppLoading: true });
-      try {
-        await get()._refreshToken();
-      } catch (error) {
-        console.error('Init auth error:', error);
-      } finally {
-        set({ isAppLoading: false });
-      }
+      if (initAuthPromise) return initAuthPromise;
+
+      initAuthPromise = (async () => {
+        console.log("начальная инициализация");
+        set({ isAppLoading: true });
+        try {
+          await get()._refreshToken();
+        } catch (error) {
+          console.error('Init auth error:', error);
+        } finally {
+          set({ isAppLoading: false });
+          initAuthPromise = null;  // ← сбрасываем, чтобы можно было вызвать снова
+          console.log("информация о входе, после init: ", get());
+        }
+      })();
+
+      return initAuthPromise;
     }
   }
 });
